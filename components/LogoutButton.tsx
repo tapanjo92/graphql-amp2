@@ -1,6 +1,6 @@
 "use client";
 
-import { Auth } from 'aws-amplify';
+import { Auth } from '@aws-amplify/auth';
 import { useRouter } from 'next/navigation';
 import React from 'react';
 
