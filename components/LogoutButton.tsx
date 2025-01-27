@@ -1,6 +1,6 @@
 "use client";
 
-import { Auth } from 'aws-amplify';
+import { signOut } from 'aws-amplify/auth';
 import { useRouter } from 'next/navigation';
 import React from 'react';
 
@@ -9,7 +9,7 @@ const LogoutButton: React.FC = () => {
 
   const handleLogout = async () => {
     try {
-      await Auth.signOut();
+      await signOut();
       router.push('/'); // Redirect to home page after logout
     } catch (error) {
       console.error('Error signing out: ', error);
@@ -24,3 +24,4 @@ const LogoutButton: React.FC = () => {
 };
 
 export default LogoutButton;
+
