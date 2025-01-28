@@ -5,7 +5,7 @@ export const auth = defineAuth({
   loginWith: {
     // Configure password requirements
     email: true,
-    passwordSettings: {
+    password: {
       minLength: 8,
       requireNumbers: true,
       requireSpecialCharacters: true,
