@@ -8,7 +8,7 @@ import { withAuthenticator, Button } from '@aws-amplify/ui-react';
 import type { AuthUser } from '@aws-amplify/ui-react-core';
 import { useRouter } from 'next/navigation';
 import { withPasswordValidation } from '../components/withPasswordValidation';
-import { CustomSignIn, CustomSignUp } from '../components/CustomAuthComponents';
+import { CustomSignIn, CustomSignUp } from '@/components/CustomAuthComponents';
 
 Amplify.configure(outputs);
 
