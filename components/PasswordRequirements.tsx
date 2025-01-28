@@ -4,19 +4,18 @@ interface PasswordRequirementsProps {
   password: string;
 }
 
-export const PasswordRequirements: React.FC<PasswordRequirementsProps> = ({ password }) => {
-  // Password validation rules
+const PasswordRequirements: React.FC<PasswordRequirementsProps> = ({ password }) => {
   const requirements = [
-    { label: 'At least 8 characters', test: (pwd: string) => pwd.length >= 8 },
-    { label: 'Contains a number', test: (pwd: string) => /\d/.test(pwd) },
-    { label: 'Contains a special character', test: (pwd: string) => /[!@#$%^&*(),.?":{}|<>]/.test(pwd) },
-    { label: 'Contains an uppercase letter', test: (pwd: string) => /[A-Z]/.test(pwd) },
-    { label: 'Contains a lowercase letter', test: (pwd: string) => /[a-z]/.test(pwd) },
+    { label: 'At least 8 characters', met: password.length >= 8 },
+    { label: 'Contains a number', met: /\d/.test(password) },
+    { label: 'Contains a special character', met: /[!@#$%^&*(),.?":{}|<>]/.test(password) },
+    { label: 'Contains an uppercase letter', met: /[A-Z]/.test(password) },
+    { label: 'Contains a lowercase letter', met: /[a-z]/.test(password) },
   ];
 
   return (
-    <div className="password-requirements" style={{ marginTop: '10px' }}>
-      <p style={{ fontSize: '0.9rem', color: '#666', marginBottom: '5px' }}>Password must have:</p>
+    <div style={{ marginTop: '1rem', padding: '1rem', backgroundColor: '#f8f9fa', borderRadius: '4px' }}>
+      <h4 style={{ marginBottom: '0.5rem', color: '#333' }}>Password Requirements:</h4>
       <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
         {requirements.map((req, index) => (
           <li
@@ -24,13 +23,12 @@ export const PasswordRequirements: React.FC<PasswordRequirementsProps> = ({ pass
             style={{
               display: 'flex',
               alignItems: 'center',
-              fontSize: '0.8rem',
-              color: req.test(password) ? '#2ecc71' : '#e74c3c',
-              marginBottom: '3px'
+              marginBottom: '0.25rem',
+              color: req.met ? '#28a745' : '#dc3545'
             }}
           >
-            <span style={{ marginRight: '5px' }}>
-              {req.test(password) ? '✓' : '✗'}
+            <span style={{ marginRight: '0.5rem' }}>
+              {req.met ? '✓' : '×'}
             </span>
             {req.label}
           </li>
