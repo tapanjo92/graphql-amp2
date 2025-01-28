@@ -1,7 +1,6 @@
 'use client';
 
 import { usePathname } from 'next/navigation';
-import { Authenticator } from '@aws-amplify/ui-react';
 import LogoutButton from "./LogoutButton";
 
 export default function HeaderComponent() {
@@ -9,16 +8,9 @@ export default function HeaderComponent() {
 
   return (
     <header>
-      <Authenticator>
-        {({ signOut, user }) => (
-          <>
-            {user && pathname !== '/login' && pathname !== '/' && (
-              <LogoutButton />
-            )}
-          </>
-        )}
-      </Authenticator>
+      {pathname !== '/login' && pathname !== '/' && (
+        <LogoutButton />
+      )}
     </header>
   );
 }
-
