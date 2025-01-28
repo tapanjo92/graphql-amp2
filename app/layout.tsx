@@ -1,9 +1,10 @@
-// filepath: /c:/Users/TJoshi/Downloads/graphql-amp2-main/graphql-amp2-main/app/layout.tsx
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./app.css";
 import Providers from "./providers";
 import LogoutButton from "../components/LogoutButton"; // Import the LogoutButton component
+import { Authenticator } from '@aws-amplify/ui-react';
+import { usePathname } from 'next/navigation'; // Import usePathname hook
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -17,12 +18,22 @@ export default function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
+  const pathname = usePathname(); // Get the current pathname
+
   return (
     <html lang="en">
       <body className={inter.className}>
         <Providers>
           <header>
-            <LogoutButton /> {/* Add the LogoutButton component */}
+            <Authenticator>
+              {({ signOut, user }) => (
+                <>
+                  {user && pathname !== '/login' && pathname !== '/' && (
+                    <LogoutButton />
+                  )}
+                </>
+              )}
+            </Authenticator>
           </header>
           {children}
         </Providers>
