@@ -6,9 +6,6 @@ export const auth = defineAuth({
     email: {
       verificationEmailSubject: 'Verify your email'
     },
-    password: {
-      require: true
-    },
     externalProviders: {
       callbackUrls: [
         "http://localhost:3000/"  // only localhost for initial deployment
