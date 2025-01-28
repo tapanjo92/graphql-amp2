@@ -4,7 +4,8 @@ import { Amplify } from "aws-amplify";
 import { fetchUserAttributes } from 'aws-amplify/auth';
 import outputs from "@/amplify_outputs.json";
 import "@aws-amplify/ui-react/styles.css";
-import { Authenticator, Button } from '@aws-amplify/ui-react';
+import { Button } from '@aws-amplify/ui-react';
+import CustomAuthenticator from '../components/CustomAuthenticator';
 import { useRouter } from 'next/navigation';
 
 Amplify.configure(outputs);
@@ -31,7 +32,7 @@ export default function App() {
   };
 
   return (
-    <Authenticator>
+    <CustomAuthenticator>
       {({ signOut }) => (
         <main style={{
           maxWidth: '1200px',
@@ -174,3 +175,4 @@ export default function App() {
     </Authenticator>
   );
 }
+
