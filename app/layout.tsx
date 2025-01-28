@@ -2,9 +2,7 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./app.css";
 import Providers from "./providers";
-import LogoutButton from "../components/LogoutButton"; // Import the LogoutButton component
-import { Authenticator } from '@aws-amplify/ui-react';
-import { usePathname } from 'next/navigation'; // Import usePathname hook
+import HeaderComponent from "./HeaderComponent";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -18,26 +16,15 @@ export default function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const pathname = usePathname(); // Get the current pathname
-
   return (
     <html lang="en">
       <body className={inter.className}>
         <Providers>
-          <header>
-            <Authenticator>
-              {({ signOut, user }) => (
-                <>
-                  {user && pathname !== '/login' && pathname !== '/' && (
-                    <LogoutButton />
-                  )}
-                </>
-              )}
-            </Authenticator>
-          </header>
+          <HeaderComponent />
           {children}
         </Providers>
       </body>
     </html>
   );
 }
+
