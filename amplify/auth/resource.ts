@@ -3,9 +3,8 @@ import { defineAuth, secret } from "@aws-amplify/backend";
 export const auth = defineAuth({
   loginWith: {
     email: {
-      verification: {
-        type: "VerificationEmailWithLink",
-      },
+      // Changed from "verification" block to "type"
+      type: "VerificationEmailWithLink",
       passwordSettings: {
         minLength: 8,
         requireNumbers: true,
@@ -16,10 +15,10 @@ export const auth = defineAuth({
     },
     externalProviders: {
       callbackUrls: [
-        "http://localhost:3000/", // only localhost for initial deployment
+        "http://localhost:3000/",
       ],
       logoutUrls: [
-        "http://localhost:3000/", // only localhost for initial deployment
+        "http://localhost:3000/",
       ],
       google: {
         clientId: secret("GOOGLE_CLIENT_ID"),
