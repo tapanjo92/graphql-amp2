@@ -6,7 +6,7 @@ export const auth = defineAuth({
       verification: {
         type: "VerificationEmailWithLink",
       },
-      password: {
+      passwordSettings: {
         minLength: 8,
         requireNumbers: true,
         requireSpecialCharacters: true,
