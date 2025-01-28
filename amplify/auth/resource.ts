@@ -4,7 +4,10 @@ import { defineAuth, secret } from "@aws-amplify/backend";
 export const auth = defineAuth({
   loginWith: {
     email: {
-      verificationEmailSubject: 'Verify your email',
+      verificationEmailSubject: 'Verify your email'
+    },
+    password: {
+      require: true
     },
     externalProviders: {
       callbackUrls: [
