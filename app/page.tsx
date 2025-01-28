@@ -5,8 +5,8 @@ import { fetchUserAttributes } from 'aws-amplify/auth';
 import outputs from "@/amplify_outputs.json";
 import "@aws-amplify/ui-react/styles.css";
 import { Button } from '@aws-amplify/ui-react';
-import CustomAuthenticator from '../components/CustomAuthenticator';
-import { useRouter } from 'next/navigation';
+import CustomAuthenticator from "../components/CustomAuthenticator";
+import { useRouter } from "next/navigation";
 
 Amplify.configure(outputs);
 
@@ -34,27 +34,33 @@ export default function App() {
   return (
     <CustomAuthenticator>
       {({ signOut }) => (
-        <main style={{
-          maxWidth: '1200px',
-          margin: '0 auto',
-          padding: '20px',
-          backgroundColor: '#ffffff'
-        }}>
+        <main
+          style={{
+            maxWidth: '1200px',
+            margin: '0 auto',
+            padding: '20px',
+            backgroundColor: '#ffffff'
+          }}
+        >
           {/* Header Section */}
-          <div style={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            marginBottom: '20px',
-            borderBottom: '1px solid #eaeaea',
-            paddingBottom: '20px'
-          }}>
+          <div
+            style={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              marginBottom: '20px',
+              borderBottom: '1px solid #eaeaea',
+              paddingBottom: '20px'
+            }}
+          >
             <div>
-              <h1 style={{ 
-                margin: 0, 
-                fontSize: '24px',
-                color: '#333333'
-              }}>
+              <h1
+                style={{
+                  margin: 0,
+                  fontSize: '24px',
+                  color: '#333333'
+                }}
+              >
                 Welcome, {userName}!
               </h1>
             </div>
@@ -75,31 +81,39 @@ export default function App() {
           </div>
 
           {/* Main Content Section */}
-          <div style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
-            gap: '20px',
-            marginTop: '40px'
-          }}>
+          <div
+            style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
+              gap: '20px',
+              marginTop: '40px'
+            }}
+          >
             {/* PTE Section */}
-            <div style={{
-              padding: '30px',
-              backgroundColor: '#f8f9fa',
-              borderRadius: '10px',
-              textAlign: 'center',
-              boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
-            }}>
-              <h2 style={{ 
-                color: '#2c3e50',
-                marginBottom: '15px'
-              }}>
+            <div
+              style={{
+                padding: '30px',
+                backgroundColor: '#f8f9fa',
+                borderRadius: '10px',
+                textAlign: 'center',
+                boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
+              }}
+            >
+              <h2
+                style={{
+                  color: '#2c3e50',
+                  marginBottom: '15px'
+                }}
+              >
                 PTE Practice Tests
               </h2>
-              <p style={{ 
-                fontSize: '1.1rem', 
-                color: '#666',
-                marginBottom: '20px'
-              }}>
+              <p
+                style={{
+                  fontSize: '1.1rem',
+                  color: '#666',
+                  marginBottom: '20px'
+                }}
+              >
                 Take a mock PTE test to practice and improve your skills
               </p>
               <Button
@@ -121,24 +135,30 @@ export default function App() {
             </div>
 
             {/* Additional Features Section */}
-            <div style={{
-              padding: '30px',
-              backgroundColor: '#f8f9fa',
-              borderRadius: '10px',
-              textAlign: 'center',
-              boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
-            }}>
-              <h2 style={{ 
-                color: '#2c3e50',
-                marginBottom: '15px'
-              }}>
+            <div
+              style={{
+                padding: '30px',
+                backgroundColor: '#f8f9fa',
+                borderRadius: '10px',
+                textAlign: 'center',
+                boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
+              }}
+            >
+              <h2
+                style={{
+                  color: '#2c3e50',
+                  marginBottom: '15px'
+                }}
+              >
                 Study Resources
               </h2>
-              <p style={{ 
-                fontSize: '1.1rem', 
-                color: '#666',
-                marginBottom: '20px'
-              }}>
+              <p
+                style={{
+                  fontSize: '1.1rem',
+                  color: '#666',
+                  marginBottom: '20px'
+                }}
+              >
                 Access study materials and practice resources
               </p>
               <Button
@@ -161,18 +181,19 @@ export default function App() {
           </div>
 
           {/* Footer Section */}
-          <footer style={{
-            marginTop: '40px',
-            textAlign: 'center',
-            padding: '20px',
-            borderTop: '1px solid #eaeaea',
-            color: '#666'
-          }}>
+          <footer
+            style={{
+              marginTop: '40px',
+              textAlign: 'center',
+              padding: '20px',
+              borderTop: '1px solid #eaeaea',
+              color: '#666'
+            }}
+          >
             <p>© 2024 Your Application Name. All rights reserved.</p>
           </footer>
         </main>
       )}
-    </Authenticator>
+    </CustomAuthenticator>
   );
 }
-
