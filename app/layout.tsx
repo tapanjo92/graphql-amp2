@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./app.css";
 import Providers from "./providers";
-import HeaderComponent from "../components/HeaderComponent"; // Update this path
+import HeaderComponent from "../components/HeaderComponent"; // Ensure the correct path
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -27,4 +27,3 @@ export default function RootLayout({
     </html>
   );
 }
-

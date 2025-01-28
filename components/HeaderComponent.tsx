@@ -3,7 +3,7 @@
 import { usePathname } from 'next/navigation';
 import LogoutButton from "./LogoutButton";
 
-export default function HeaderComponent() {
+const HeaderComponent: React.FC = () => {
   const pathname = usePathname();
 
   return (
@@ -13,4 +13,6 @@ export default function HeaderComponent() {
       )}
     </header>
   );
-}
+};
+
+export default HeaderComponent;
