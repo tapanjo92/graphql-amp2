@@ -1,164 +1,232 @@
-import { useState, useEffect } from "react";
-import { getCurrentUser, fetchUserAttributes, signOut } from "aws-amplify/auth";
-import { useRouter } from "next/navigation";
+'use client';
+import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import { getCurrentUser, fetchUserAttributes, updateUserAttributes } from 'aws-amplify/auth';
 
-type UserData = {
+interface FormData {
   givenName: string;
   familyName: string;
   email: string;
-  isComplete: boolean;
-};
+  phoneNumber: string;
+}
 
-const ProfilePage = () => {
+export default function EditProfilePage() {
   const router = useRouter();
-  const [userData, setUserData] = useState<UserData | null>(null);
   const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState('');
+  const [formData, setFormData] = useState<FormData>({
+    givenName: '',
+    familyName: '',
+    email: '',
+    phoneNumber: '',
+  });
 
-  const handleFetchUserData = async () => {
+  useEffect(() => {
+    checkAuthAndLoadData();
+  }, []);
+
+  async function checkAuthAndLoadData() {
     try {
-      const currentUser = await getCurrentUser();
+      await getCurrentUser();
+      await loadUserData();
+    } catch (error) {
+      console.error('Authentication error:', error);
+      router.push('/login');
+    }
+  }
+
+  async function loadUserData() {
+    try {
       const attributes = await fetchUserAttributes();
-      const missingAttributes: string[] = [];
-
-      if (!attributes.email) missingAttributes.push("email");
-      if (!attributes.given_name) missingAttributes.push("first name");
-      if (!attributes.family_name) missingAttributes.push("last name");
-
-      setUserData({
-        email: attributes.email || currentUser.signInDetails?.loginId || "",
-        givenName: attributes.given_name || currentUser.username || "",
-        familyName: attributes.family_name || "",
-        isComplete: missingAttributes.length === 0,
+      setFormData({
+        givenName: attributes.given_name || '',
+        familyName: attributes.family_name || '',
+        email: attributes.email || '',
+        phoneNumber: attributes.phone_number || '',
       });
     } catch (error) {
-      console.error("Error fetching user data:", error);
-      router.push("/login");
+      console.error('Error loading user data:', error);
+      setError('Failed to load user data');
     } finally {
       setLoading(false);
     }
-  };
+  }
 
-  const handleCheckAuthAndLoadData = async () => {
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    setSaving(true);
+    setError('');
+
     try {
-      await getCurrentUser();
-      await handleFetchUserData();
+      await updateUserAttributes({
+        userAttributes: {
+          given_name: formData.givenName,
+          family_name: formData.familyName,
+          email: formData.email,
+          phone_number: formData.phoneNumber,
+        },
+      });
+      router.push('/profile');
     } catch (error) {
-      console.error("Authentication error:", error);
-      router.push("/login");
+      console.error('Error updating profile:', error);
+      setError('Failed to update profile. Please try again.');
+    } finally {
+      setSaving(false);
     }
-  };
-
-  const handleSignOut = async () => {
-    try {
-      await signOut();
-      router.push("/login");
-    } catch (error) {
-      console.error("Error signing out:", error);
-    }
-  };
-
-  useEffect(() => {
-    handleCheckAuthAndLoadData();
-  }, []);
+  }
 
   if (loading) {
     return (
-      <div className="flex justify-center items-center h-screen">
-        <p className="text-gray-700">Loading your profile...</p>
-      </div>
-    );
-  }
-
-  if (!userData) {
-    return (
-      <div className="flex justify-center items-center h-screen">
-        <p className="text-red-500">No user data available.</p>
-      </div>
+      <main className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-4 sm:p-6">
+        <div className="max-w-4xl mx-auto">
+          <div className="bg-white shadow-xl rounded-2xl p-6">
+            <div className="animate-pulse space-y-8">
+              <div className="h-8 bg-gray-200 rounded w-1/4"></div>
+              <div className="space-y-6">
+                <div className="h-10 bg-gray-200 rounded"></div>
+                <div className="h-10 bg-gray-200 rounded"></div>
+                <div className="h-10 bg-gray-200 rounded"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </main>
     );
   }
 
   return (
-    <div className="min-h-screen w-full bg-gradient-to-br from-gray-100 to-white flex flex-col items-center py-8">
-      <div className="max-w-4xl w-full px-4 space-y-6">
-        <div className="bg-white shadow-xl rounded-2xl overflow-hidden">
-          <div className="bg-gradient-to-r from-blue-600 to-blue-700 p-6 flex items-center justify-between">
-            <h1 className="text-2xl font-bold text-white">My Profile</h1>
-            <button
-              onClick={() => router.push("/profile/edit")}
-              className="px-4 py-2 bg-white text-blue-600 rounded-lg hover:bg-blue-50 transition-colors flex items-center space-x-2"
-              aria-label="Edit Profile"
-              tabIndex={0}
-              onKeyDown={(e) => e.key === "Enter" && router.push("/profile/edit")}
-            >
-              <span>Edit Profile</span>
-            </button>
-          </div>
-          <div className="p-6 flex items-center space-x-4">
-            <div className="h-20 w-20 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center">
-              <span className="text-2xl font-bold text-white">
-                {userData.givenName?.charAt(0)}
-                {userData.familyName?.charAt(0)}
-              </span>
-            </div>
-            <div>
-              <h2 className="text-xl font-bold text-gray-900">
-                {userData.givenName} {userData.familyName}
-              </h2>
-              <p className="text-gray-500">{userData.email}</p>
-              {!userData.isComplete && (
-                <p className="text-sm text-red-600 mt-2">
-                  Profile incomplete. Please update your info.
-                </p>
-              )}
+    <main className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-4 sm:p-6">
+      <div className="max-w-4xl mx-auto space-y-6">
+        {/* Navigation Bar */}
+        <nav className="bg-white shadow-lg rounded-lg">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="flex justify-between h-16">
+              <div className="flex items-center">
+                <button
+                  onClick={() => router.push('/profile')}
+                  className="text-gray-700 hover:text-gray-900 flex items-center"
+                >
+                  <svg className="h-6 w-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7" />
+                  </svg>
+                  Back to Profile
+                </button>
+              </div>
             </div>
           </div>
-        </div>
-        <div className="bg-white shadow-xl rounded-2xl p-6 space-y-6">
-          <h3 className="text-lg font-semibold text-gray-900">Professional Information</h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-              <label className="block text-sm font-medium text-gray-700">Headline</label>
-              <input
-                type="text"
-                placeholder="Add a professional headline"
-                className="mt-1 w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700">Location</label>
-              <input
-                type="text"
-                placeholder="Add your location"
-                className="mt-1 w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-              />
-            </div>
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Bio</label>
-            <textarea
-              placeholder="Write a short bio"
-              rows={4}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-            ></textarea>
-            <p className="mt-2 text-sm text-gray-500">
-              Share your professional background and interests.
-            </p>
-          </div>
-        </div>
-        <div className="flex justify-end">
-          <button
-            onClick={handleSignOut}
-            className="px-6 py-2.5 border border-red-500 text-red-500 rounded-lg hover:bg-red-50 transition-colors"
-            aria-label="Sign out"
-            tabIndex={0}
-            onKeyDown={(e) => e.key === "Enter" && handleSignOut()}
-          >
-            Sign Out
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-};
+        </nav>
 
-export default ProfilePage;
+        {/* Header Card */}
+        <div className="bg-white shadow-xl rounded-2xl overflow-hidden">
+          <div className="bg-gradient-to-r from-blue-600 to-blue-700 p-6">
+            <div className="flex items-center justify-between">
+              <h1 className="text-2xl font-bold text-white">Edit Profile</h1>
+            </div>
+          </div>
+        </div>
+
+        {/* Form Card */}
+        <form onSubmit={handleSubmit} className="bg-white shadow-xl rounded-2xl p-6 sm:p-8">
+          <div className="space-y-6">
+            {error && (
+              <div className="bg-red-50 border-l-4 border-red-400 p-4 rounded-lg">
+                <div className="flex">
+                  <svg className="h-5 w-5 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  <p className="ml-3 text-sm text-red-700">{error}</p>
+                </div>
+              </div>
+            )}
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="space-y-2">
+                <label className="block text-sm font-medium text-gray-700">
+                  First Name
+                </label>
+                <input
+                  type="text"
+                  value={formData.givenName}
+                  onChange={(e) => setFormData(prev => ({ ...prev, givenName: e.target.value }))}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                  required
+                />
+              </div>
+
+              <div className="space-y-2">
+                <label className="block text-sm font-medium text-gray-700">
+                  Last Name
+                </label>
+                <input
+                  type="text"
+                  value={formData.familyName}
+                  onChange={(e) => setFormData(prev => ({ ...prev, familyName: e.target.value }))}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                  required
+                />
+              </div>
+
+              <div className="space-y-2">
+                <label className="block text-sm font-medium text-gray-700">
+                  Email Address
+                </label>
+                <input
+                  type="email"
+                  value={formData.email}
+                  onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                  required
+                />
+              </div>
+
+              <div className="space-y-2">
+                <label className="block text-sm font-medium text-gray-700">
+                  Phone Number
+                </label>
+                <input
+                  type="tel"
+                  value={formData.phoneNumber}
+                  onChange={(e) => setFormData(prev => ({ ...prev, phoneNumber: e.target.value }))}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                  placeholder="+1234567890"
+                />
+              </div>
+            </div>
+
+            <div className="flex items-center justify-end space-x-4 pt-6">
+              <button
+                type="button"
+                onClick={() => router.push('/profile')}
+                className="px-6 py-2.5 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                disabled={saving}
+                className="px-6 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 
+                         disabled:opacity-50 disabled:cursor-not-allowed transition-colors
+                         flex items-center space-x-2"
+              >
+                {saving ? (
+                  <>
+                    <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                    </svg>
+                    <span>Saving...</span>
+                  </>
+                ) : (
+                  <span>Save Changes</span>
+                )}
+              </button>
+            </div>
+          </div>
+        </form>
+      </div>
+    </main>
+  );
+}
+
+
