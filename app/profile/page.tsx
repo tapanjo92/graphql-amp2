@@ -13,7 +13,7 @@ interface UserData {
   isComplete: boolean;
 }
 
-const ProfilePage: React.FC = () => {
+export default function ProfilePage() {
   const router = useRouter();
   const [userData, setUserData] = useState<UserData | null>(null);
   const [loading, setLoading] = useState(true);
@@ -97,4 +97,4 @@ const ProfilePage: React.FC = () => {
   );
 };
 
-export default ProfilePage;
+
