@@ -89,12 +89,10 @@ export default function ProfilePage() {
           onPrimaryButtonClick={() => router.push('/profile/edit')}
           onSecondaryButtonClick={handleSignOut}
           variation="outlined"
-          >
+        >
           Add your professional headline and location.
-        />
+        </ActionCard>
       </div>
     </div>
   );
-};
-
-
+}
