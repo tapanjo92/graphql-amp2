@@ -84,12 +84,13 @@ const ProfilePage: React.FC = () => {
         />
         <ActionCard
           title="Professional Information"
-          description="Add your professional headline and location."
           primaryButtonText="Edit Profile"
           secondaryButtonText="Sign Out"
           onPrimaryButtonClick={() => router.push('/profile/edit')}
           onSecondaryButtonClick={handleSignOut}
           variation="outlined"
+          >
+          Add your professional headline and location.
         />
       </div>
     </div>
