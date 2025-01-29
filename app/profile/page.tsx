@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { getCurrentUser, fetchUserAttributes, signOut } from 'aws-amplify/auth';
 import { useRouter } from 'next/navigation';
-import { ProfileCard, NavBarHeader, ActionCard } from '../ui-components';
+import { ProfileCard, NavBarHeader, ActionCard } from '../../ui-components';
 
 interface UserData {
   givenName: string;
