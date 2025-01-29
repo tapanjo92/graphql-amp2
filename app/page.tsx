@@ -4,58 +4,12 @@ import { Amplify } from "aws-amplify";
 import { fetchUserAttributes } from 'aws-amplify/auth';
 import outputs from "@/amplify_outputs.json";
 import "@aws-amplify/ui-react/styles.css";
-import { withAuthenticator, Button } from '@aws-amplify/ui-react';
-import type { AuthUser } from '@aws-amplify/ui-react-core';
+import { Authenticator, Button } from '@aws-amplify/ui-react';
 import { useRouter } from 'next/navigation';
-import { withPasswordValidation } from '../components/withPasswordValidation';
-import { CustomSignIn, CustomSignUp } from '../components/CustomAuthComponents';
 
 Amplify.configure(outputs);
 
-const authenticatorConfig = {
-  variation: 'modal',
-  loginMechanisms: ['email'],
-  components: {
-    SignIn: CustomSignIn,
-    SignUp: CustomSignUp()
-  },
-  formFields: {
-    signUp: {
-      password: {
-        isRequired: true,
-        order: 2,
-        label: 'Password',
-      },
-      confirm_password: {
-        isRequired: true,
-        order: 3,
-        label: 'Confirm Password'
-      }
-    }
-  },
-  services: {
-    async validateCustomSignUp(formData: Record<string, string>) {
-      const password = formData.password;
-      if (password.length < 8) {
-        throw new Error('Password must be at least 8 characters');
-      }
-      if (!/\d/.test(password)) {
-        throw new Error('Password must contain at least one number');
-      }
-      if (!/[!@#$%^&*(),.?":{}|<>]/.test(password)) {
-        throw new Error('Password must contain at least one special character');
-      }
-      if (!/[A-Z]/.test(password)) {
-        throw new Error('Password must contain at least one uppercase letter');
-      }
-      if (!/[a-z]/.test(password)) {
-        throw new Error('Password must contain at least one lowercase letter');
-      }
-    }
-  }
-};
-
-function App({ signOut, user }: { signOut?: () => void; user?: AuthUser }) {
+export default function App() {
   const [userName, setUserName] = useState<string>('');
   const router = useRouter();
 
@@ -77,6 +31,8 @@ function App({ signOut, user }: { signOut?: () => void; user?: AuthUser }) {
   };
 
   return (
+    <Authenticator>
+      {({ signOut }) => (
         <main style={{
           maxWidth: '1200px',
           margin: '0 auto',
@@ -214,9 +170,8 @@ function App({ signOut, user }: { signOut?: () => void; user?: AuthUser }) {
             <p>© 2024 Your Application Name. All rights reserved.</p>
           </footer>
         </main>
+      )}
+    </Authenticator>
   );
 }
-
-const AppWithAuth = withPasswordValidation(App);
-export default withAuthenticator(AppWithAuth, authenticatorConfig);
 
