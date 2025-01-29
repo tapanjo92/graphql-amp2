@@ -1,10 +1,9 @@
-// profile 
 'use client';
 
 import { useState, useEffect } from 'react';
 import { getCurrentUser, fetchUserAttributes, signOut } from 'aws-amplify/auth';
 import { useRouter } from 'next/navigation';
-import { ProfileCard, NavBarHeader, ActionCard } from '../../ui-components';
+import { View, Card, Heading, Text, Button, Flex } from '@aws-amplify/ui-react';
 
 interface UserData {
   givenName: string;
@@ -67,32 +66,32 @@ export default function ProfilePage() {
 
   if (loading || !userData) {
     return (
-      <div className="flex justify-center items-center h-screen">
+      <View className="flex justify-center items-center h-screen">
         <p>Loading your profile...</p>
-      </div>
+      </View>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 py-8 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-4xl mx-auto space-y-6">
-        <NavBarHeader />
-        <ProfileCard
-          givenName={userData.givenName}
-          familyName={userData.familyName}
-          email={userData.email}
-        />
-        <ActionCard
-          title="Professional Information"
-          primaryButtonText="Edit Profile"
-          secondaryButtonText="Sign Out"
-          onPrimaryButtonClick={() => router.push('/profile/edit')}
-          onSecondaryButtonClick={handleSignOut}
-          variation="outlined"
-        >
-          Add your professional headline and location.
-        </ActionCard>
-      </div>
-    </div>
+    <View className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 py-8 px-4 sm:px-6 lg:px-8">
+      <View className="max-w-4xl mx-auto space-y-6">
+        <Card>
+          <Heading level={3}>Profile</Heading>
+          <Flex direction="column" gap="medium">
+            <Text>Name: {userData.givenName} {userData.familyName}</Text>
+            <Text>Email: {userData.email}</Text>
+          </Flex>
+        </Card>
+        
+        <Card variation="outlined">
+          <Heading level={4}>Professional Information</Heading>
+          <Text>Add your professional headline and location.</Text>
+          <Flex gap="medium" marginTop="medium">
+            <Button onClick={() => router.push('/profile/edit')}>Edit Profile</Button>
+            <Button onClick={handleSignOut} variation="link">Sign Out</Button>
+          </Flex>
+        </Card>
+      </View>
+    </View>
   );
-}
+};
