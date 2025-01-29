@@ -84,7 +84,7 @@ const ProfilePage: React.FC = () => {
         />
         <ActionCard
           title="Professional Information"
-          description="Add your professional headline and location."
+          content="Add your professional headline and location."
           actions={[
             {
               label: 'Edit Profile',
