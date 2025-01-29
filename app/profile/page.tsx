@@ -1,16 +1,4 @@
-'use client';
-
-import { useState, useEffect } from 'react';
-import { getCurrentUser, fetchUserAttributes, signOut } from 'aws-amplify/auth';
-import { useRouter } from 'next/navigation';
-import { ProfileCard, NavBarHeader, ActionCard } from '../../ui-components';
-
-interface UserData {
-  givenName: string;
-  familyName: string;
-  email: string;
-  isComplete: boolean;
-}
+import { ProfileCard, NavBarHeader } from '../../ui-components';
 
 const ProfilePage: React.FC = () => {
   const router = useRouter();

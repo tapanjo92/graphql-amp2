@@ -15,6 +15,15 @@ export declare type Variant = {
     overrides: EscapeHatchProps;
 };
 
+export declare type ProfileCardProps = React.PropsWithChildren<Partial<FlexProps> & {
+  givenName?: string;
+  familyName?: string;
+  email?: string;
+  overrides?: ProfileCardOverridesProps | undefined | null;
+}>;
+
+export default function ProfileCard(props: ProfileCardProps): React.ReactElement;
+
 export declare type PrimitiveOverrideProps<T> = Partial<T> & React.DOMAttributes<HTMLDivElement>;
 
 export declare type ProfileCardOverridesProps = {
