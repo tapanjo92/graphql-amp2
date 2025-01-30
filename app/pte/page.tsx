@@ -2,42 +2,37 @@
 import { Authenticator, Button } from '@aws-amplify/ui-react';
 import { useRouter } from 'next/navigation';
 
-export default function PTEPage() {
+const PTEPage = () => {
   const router = useRouter();
+
+  const handleReadingClick = () => {
+    router.push('/pte/reading');
+  };
 
   return (
     <Authenticator>
       {() => (
-        <main style={{
-          maxWidth: '800px',
-          margin: '0 auto',
-          padding: '20px'
-        }}>
-          <div style={{
-            textAlign: 'center',
-            marginTop: '40px',
-            padding: '30px',
-            backgroundColor: '#f5f5f5',
-            borderRadius: '8px'
-          }}>
-            <h1>Take PTE Mock Quiz</h1>
-            <p style={{ fontSize: '1.1rem', color: '#666', marginTop: '20px' }}>
-              Test your PTE skills with our mock quiz
-            </p>
-            <Button
-              onClick={() => router.push('/')}
-              variation="primary"
-              style={{ 
-                marginTop: '20px',
-                backgroundColor: '#6B7280',
-                color: 'white'
-              }}
-            >
-              Back to Home
-            </Button>
+        <main className="max-w-5xl mx-auto p-6 bg-white">
+          <div className="flex justify-between items-center mb-6 border-b pb-4">
+            <h1 className="text-2xl font-bold text-gray-800">PTE Practice Tests</h1>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-10">
+            <div className="p-6 bg-gray-100 rounded-lg text-center shadow">
+              <h2 className="text-xl font-semibold text-gray-700 mb-4">Reading Section</h2>
+              <p className="text-gray-600 mb-6">Practice your reading skills with our mock tests</p>
+              <Button
+                onClick={handleReadingClick}
+                variation="primary"
+                className="bg-blue-500 text-white px-6 py-2 rounded"
+              >
+                Start Reading Practice
+              </Button>
+            </div>
           </div>
         </main>
       )}
     </Authenticator>
   );
-}
+};
+
+export default PTEPage;
