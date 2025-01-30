@@ -1,45 +1,66 @@
 "use client";
-import { generateClient } from "aws-amplify/data";
-import type { Schema } from "@/amplify/data/resource";
+import { Authenticator, Button } from '@aws-amplify/ui-react';
+import { useRouter } from 'next/navigation';
 
-// Gen2 client generation
-const client = generateClient<Schema>();
+const ReadingPage = () => {
+  const router = useRouter();
 
-// Example component using the data
-export default function ReadingQuestions() {
-  async function addQuestion() {
-    try {
-      const newQuestion = await client.models.ReadingPte.create({
-        title: "Reading Test 1",
-        passage: "Sample passage content...",
-        question: "What is the main idea?",
-        correctAnswer: "The correct answer",
-        options: ["Option A", "Option B", "Option C", "Option D"],
-        difficulty: "MEDIUM",
-        type: "multiple-choice",
-        timeLimit: 20,
-        score: 5,
-        explanation: "Explanation for the answer..."
-      });
-      console.log('Created:', newQuestion);
-    } catch (error) {
-      console.error('Error:', error);
+  const readingSubsections = [
+    {
+      title: "Multiple-choice, Choose Single Answer",
+      description: "Practice questions where you need to select one correct answer from multiple options",
+      path: "/pte/reading/single-choice"
+    },
+    {
+      title: "Multiple-choice, Choose Multiple Answers",
+      description: "Practice questions where you need to select multiple correct answers",
+      path: "/pte/reading/multiple-choice"
+    },
+    {
+      title: "Reading & Fill in the Blanks",
+      description: "Practice completing passages by filling in missing words",
+      path: "/pte/reading/fill-blanks"
     }
-  }
-
-  async function listQuestions() {
-    try {
-      const { data: questions } = await client.models.ReadingPte.list();
-      console.log('Questions:', questions);
-    } catch (error) {
-      console.error('Error:', error);
-    }
-  }
+  ];
 
   return (
-    <div>
-      <button onClick={addQuestion}>Add Question</button>
-      <button onClick={listQuestions}>List Questions</button>
-    </div>
+    <Authenticator>
+      {() => (
+        <main className="max-w-5xl mx-auto p-6 bg-white">
+          <div className="flex justify-between items-center mb-6 border-b pb-4">
+            <h1 className="text-2xl font-bold text-gray-800">PTE Reading Practice</h1>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-10">
+            {readingSubsections.map((section, index) => (
+              <div 
+                key={index}
+                className="p-6 bg-gray-100 rounded-lg text-center shadow hover:shadow-lg transition-shadow"
+                role="button"
+                tabIndex={0}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    router.push(section.path);
+                  }
+                }}
+              >
+                <h2 className="text-xl font-semibold text-gray-700 mb-4">{section.title}</h2>
+                <p className="text-gray-600 mb-6">{section.description}</p>
+                <Button
+                  onClick={() => router.push(section.path)}
+                  variation="primary"
+                  className="bg-blue-500 hover:bg-blue-600 text-white px-6 py-2 rounded transition-colors"
+                  aria-label={`Start ${section.title} practice`}
+                >
+                  Start Practice
+                </Button>
+              </div>
+            ))}
+          </div>
+        </main>
+      )}
+    </Authenticator>
   );
-}
+};
+
+export default ReadingPage;
