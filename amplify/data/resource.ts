@@ -1,4 +1,4 @@
-import { defineData, type Schema } from '@aws-amplify/backend';
+import { defineData, type DataProps } from '@aws-amplify/backend';
 
 export const schema = {
   Comment: {
@@ -68,4 +68,8 @@ export const schema = {
 } as const;
 
 export type Schema = typeof schema;
-export const data = defineData(schema);
+
+export const data = defineData({
+  schema,
+  models: schema,
+} as DataProps);
