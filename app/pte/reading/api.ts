@@ -1,7 +1,8 @@
-import { generateClient } from 'aws-amplify/api';
-import { type Schema } from '../../../amplify/data/resource';
+import { generateClient } from '@aws-amplify/api';
+import { Schema } from '../../../amplify/data/resource';
+import { type ClientSchema } from '@aws-amplify/api/build/types';
 
-const client = generateClient<Schema>();
+const client = generateClient<ClientSchema<Schema>>();
 
 export interface ReadingQuestion {
   id: string;
@@ -17,7 +18,8 @@ export interface ReadingQuestion {
 
 export async function createReadingQuestion(question: Omit<ReadingQuestion, 'id' | 'createdAt' | 'updatedAt'>) {
   try {
-    const result = await client.models.Question.create({
+    const result = await client.create({
+      type: 'Question',
       ...question,
     });
     return result;
@@ -29,8 +31,8 @@ export async function createReadingQuestion(question: Omit<ReadingQuestion, 'id'
 
 export async function listReadingQuestions() {
   try {
-    const questions = await client.models.Question.list();
-    return questions;
+    const result = await client.query('Question');
+    return result.data;
   } catch (error) {
     console.error('Error listing reading questions:', error);
     throw error;
@@ -39,8 +41,11 @@ export async function listReadingQuestions() {
 
 export async function getReadingQuestion(id: string) {
   try {
-    const question = await client.models.Question.get({ id });
-    return question;
+    const result = await client.get({
+      type: 'Question',
+      id
+    });
+    return result;
   } catch (error) {
     console.error('Error getting reading question:', error);
     throw error;
@@ -49,7 +54,8 @@ export async function getReadingQuestion(id: string) {
 
 export async function updateReadingQuestion(id: string, question: Partial<Omit<ReadingQuestion, 'id' | 'createdAt' | 'updatedAt'>>) {
   try {
-    const result = await client.models.Question.update({
+    const result = await client.update({
+      type: 'Question',
       id,
       ...question,
     });
@@ -62,7 +68,10 @@ export async function updateReadingQuestion(id: string, question: Partial<Omit<R
 
 export async function deleteReadingQuestion(id: string) {
   try {
-    await client.models.Question.delete({ id });
+    await client.delete({
+      type: 'Question',
+      id
+    });
   } catch (error) {
     console.error('Error deleting reading question:', error);
     throw error;

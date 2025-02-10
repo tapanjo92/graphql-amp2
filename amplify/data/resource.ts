@@ -1,39 +1,58 @@
-import { type ClientSchema, a, defineData } from "@aws-amplify/backend";
+import { defineData, Schema } from '@aws-amplify/backend';
 
-const schema = a.schema({
-  // Your existing Todo model
-  Todo: a
-    .model({
-      content: a.string(),
-    })
-    .authorization((allow) => [allow.publicApiKey()]),
+const schema = {
+  Question: {
+    model: {
+      primaryKey: {
+        partitionKey: 'id',
+      },
+      attributes: {
+        id: {
+          type: 'string',
+          required: true,
+        },
+        title: {
+          type: 'string',
+          required: true,
+        },
+        passage: {
+          type: 'string',
+          required: true,
+        },
+        options: {
+          type: ['string'],
+          required: true,
+        },
+        correctAnswer: {
+          type: 'string',
+          required: true,
+        },
+        explanation: {
+          type: 'string',
+          required: true,
+        },
+        difficulty: {
+          type: 'string',
+          required: true,
+        },
+        createdAt: {
+          type: 'string',
+          required: true,
+        },
+        updatedAt: {
+          type: 'string',
+          required: true,
+        },
+      },
+    },
+  },
+} as const;
 
-  // Fixed ReadingPte model
-  ReadingPte: a
-    .model({
-      title: a.string(),
-      passage: a.string(),
-      question: a.string(),
-      correctAnswer: a.string(),
-      options: a.string().array(),  // Changed to use string().array()
-      difficulty: a.enum(['EASY', 'MEDIUM', 'HARD']),
-      type: a.string(),
-      timeLimit: a.integer(),
-      score: a.integer(),
-      explanation: a.string(),
-    })
-    .authorization((allow) => [allow.publicApiKey()]),
-});
-
-export type Schema = ClientSchema<typeof schema>;
+export type Schema = Schema<typeof schema>;
 
 export const data = defineData({
   schema,
   authorizationModes: {
-    defaultAuthorizationMode: "apiKey",
-    apiKeyAuthorizationMode: {
-      expiresInDays: 30,
-    },
+    defaultAuthorizationMode: 'userPool',
   },
 });
-

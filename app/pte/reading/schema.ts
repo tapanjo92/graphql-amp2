@@ -1,6 +1,5 @@
-import { Schema } from '@aws-amplify/backend';
-
-// Define the Reading Question schema
+// Question schema is now defined in amplify/data/resource.ts
+import { Schema } from '../../../amplify/data/resource';
 export const readingQuestionSchema = {
   Question: {
     model: {
