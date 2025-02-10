@@ -1,73 +1,71 @@
-import { defineData, DataSchemaInput } from '@aws-amplify/backend';
+import { defineData } from '@aws-amplify/backend';
 
-export const schema: DataSchemaInput = {
-  Comment: {
-    model: {
-      primaryKey: {
-        id: 'id',
-      },
+export const schema = {
+    Comment: {
+        model: {
+            primaryKey: {
+                id: 'id',
+            },
+        },
+        fields: {
+            id: {
+                type: 'ID',
+            },
+            post: {
+                type: 'ID',
+                isRequired: true,
+            },
+            author: {
+                type: 'ID',
+                isRequired: true,
+            },
+            content: {
+                type: 'String',
+                isRequired: true,
+            },
+            createdAt: {
+                type: 'AWSDateTime',
+                isRequired: true,
+            },
+            updatedAt: {
+                type: 'AWSDateTime',
+                isRequired: true,
+            },
+        },
     },
-    fields: {
-      id: {
-        type: 'ID',
-      },
-      post: {
-        type: 'ID',
-        isRequired: true,
-      },
-      author: {
-        type: 'ID',
-        isRequired: true,
-      },
-      content: {
-        type: 'String',
-        isRequired: true,
-      },
-      createdAt: {
-        type: 'AWSDateTime',
-        isRequired: true,
-      },
-      updatedAt: {
-        type: 'AWSDateTime',
-        isRequired: true,
-      },
+    Post: {
+        model: {
+            primaryKey: {
+                id: 'id',
+            },
+        },
+        fields: {
+            id: {
+                type: 'ID',
+            },
+            author: {
+                type: 'ID',
+                isRequired: true,
+            },
+            title: {
+                type: 'String',
+                isRequired: true,
+            },
+            content: {
+                type: 'String',
+            },
+            createdAt: {
+                type: 'AWSDateTime',
+                isRequired: true,
+            },
+            updatedAt: {
+                type: 'AWSDateTime',
+                isRequired: true,
+            },
+        },
     },
-  },
-  Post: {
-    model: {
-      primaryKey: {
-        id: 'id',
-      },
-    },
-    fields: {
-      id: {
-        type: 'ID',
-      },
-      author: {
-        type: 'ID',
-        isRequired: true,
-      },
-      title: {
-        type: 'String',
-        isRequired: true,
-      },
-      content: {
-        type: 'String',
-        isRequired: true,
-      },
-      createdAt: {
-        type: 'AWSDateTime',
-        isRequired: true,
-      },
-      updatedAt: {
-        type: 'AWSDateTime',
-        isRequired: true,
-      },
-    },
-  },
 };
 
 export const data = defineData({
-  schema,
-  models: schema,
+    schema,
 });
