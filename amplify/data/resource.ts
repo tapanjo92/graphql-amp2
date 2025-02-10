@@ -1,52 +1,71 @@
-import { defineData, type DataSchemaInput } from '@aws-amplify/backend';
+import { defineData, type Schema } from '@aws-amplify/backend';
 
-const schema: DataSchemaInput = {
-  Question: {
+export const schema = {
+  Comment: {
     model: {
       primaryKey: {
-        partitionKey: 'id',
+        id: 'id',
       },
-      attributes: {
-        id: {
-          type: 'string',
-          required: true,
-        },
-        title: {
-          type: 'string',
-          required: true,
-        },
-        passage: {
-          type: 'string',
-          required: true,
-        },
-        options: {
-          type: ['string'],
-          required: true,
-        },
-        correctAnswer: {
-          type: 'string',
-          required: true,
-        },
-        explanation: {
-          type: 'string',
-          required: true,
-        },
-        difficulty: {
-          type: 'string',
-          required: true,
-        },
-        createdAt: {
-          type: 'string',
-          required: true,
-        },
-        updatedAt: {
-          type: 'string',
-          required: true,
-        },
+    },
+    fields: {
+      id: {
+        type: 'ID',
+      },
+      post: {
+        type: 'ID',
+        isRequired: true,
+      },
+      author: {
+        type: 'ID',
+        isRequired: true,
+      },
+      content: {
+        type: 'String',
+        isRequired: true,
+      },
+      createdAt: {
+        type: 'AWSDateTime',
+        isRequired: true,
+      },
+      updatedAt: {
+        type: 'AWSDateTime',
+        isRequired: true,
       },
     },
   },
-};
+  Post: {
+    model: {
+      primaryKey: {
+        id: 'id',
+      },
+    },
+    fields: {
+      id: {
+        type: 'ID',
+      },
+      author: {
+        type: 'ID',
+        isRequired: true,
+      },
+      title: {
+        type: 'String',
+        isRequired: true,
+      },
+      content: {
+        type: 'String',
+        isRequired: true,
+      },
+      createdAt: {
+        type: 'AWSDateTime',
+        isRequired: true,
+      },
+      updatedAt: {
+        type: 'AWSDateTime',
+        isRequired: true,
+      },
+    },
+  },
+} as const;
 
 export type Schema = typeof schema;
 export const data = defineData(schema);
