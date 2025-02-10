@@ -1,6 +1,6 @@
-import { defineData } from '@aws-amplify/backend';
+import { defineData, DataSchemaInput } from '@aws-amplify/backend';
 
-export const schema = {
+export const schema: DataSchemaInput = {
   Comment: {
     model: {
       primaryKey: {
@@ -65,9 +65,7 @@ export const schema = {
       },
     },
   },
-} as const;
-
-export type Schema = typeof schema;
+};
 
 export const data = defineData({
   schema,
