@@ -1,33 +1,14 @@
-// amplify/data/resource.ts
-import { defineData } from '@aws-amplify/backend';
+import { defineData, Schema } from "@aws-amplify/backend";
 
-const schema = {
+export const data = defineData({
   models: {
     Todo: {
       fields: {
-        id: {
-          type: 'ID',
-          isRequired: true,
-        },
-        name: {
-          type: 'String',
-          isRequired: true,
-        },
-        description: {
-          type: 'String',
-        },
-        completed: {
-          type: 'Boolean',
-          isRequired: true,
-        },
-      },
-    },
-  },
-};
-
-export default defineData({
-  schema,
-  authorizationModes: {
-    defaultAuthorizationMode: 'userPool',
-  },
+        id: { type: Schema.ID, isRequired: true },
+        name: { type: Schema.String, isRequired: true },
+        description: { type: Schema.String },
+        completed: { type: Schema.Boolean, isRequired: true }
+      }
+    }
+  }
 });
