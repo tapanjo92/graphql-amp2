@@ -1,14 +1,23 @@
-import { defineData, Schema } from "@aws-amplify/backend";
+import { defineData, type ClientSchema } from "@aws-amplify/backend";
 
 export const data = defineData({
-  models: {
+  schema: {
     Todo: {
-      fields: {
-        id: { type: Schema.ID, isRequired: true },
-        name: { type: Schema.String, isRequired: true },
-        description: { type: Schema.String },
-        completed: { type: Schema.Boolean, isRequired: true }
-      }
-    }
-  }
+      primaryIndex: { partitionKey: 'id' },
+      attributes: {
+        id: {
+          type: 'string',
+        },
+        name: {
+          type: 'string',
+        },
+        description: {
+          type: 'string',
+        },
+        priority: {
+          type: 'string',
+        },
+      },
+    },
+  },
 });
