@@ -1,43 +1,32 @@
-import { DerivedCombinedSchema, DerivedModelSchema } from 'aws-amplify/datastore';
+import { defineData, Schema } from '@aws-amplify/backend';
 
-const resourceSchema: DerivedCombinedSchema = {
+const schema = {
   models: {
-    User: {
-      name: 'User',
+    Todo: {
       fields: {
         id: {
           type: 'ID',
-          required: true,
+          isRequired: true,
         },
-        username: {
+        name: {
           type: 'String',
-          required: true,
+          isRequired: true,
         },
-        // ... add additional User fields as needed
+        description: {
+          type: 'String',
+        },
+        completed: {
+          type: 'Boolean',
+          isRequired: true,
+        },
       },
     },
-    // For the "Post" model, we use a type assertion to bypass the TS2353 error.
-    Post: (({
-      name: 'Post',
-      fields: {
-        id: {
-          type: 'ID',
-          required: true,
-        },
-        title: {
-          type: 'String',
-          required: true,
-        },
-        content: {
-          type: 'String',
-          required: false,
-        },
-        // ... add additional Post fields as needed
-      },
-    } as unknown) as DerivedModelSchema),
   },
-  syncable: true,
-  version: '1',
-};
+} as Schema;
 
-export default resourceSchema;
+export default defineData({
+  schema,
+  authorizationModes: {
+    defaultAuthorizationMode: 'userPool',
+  },
+});
