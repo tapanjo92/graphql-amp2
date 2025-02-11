@@ -1,4 +1,5 @@
-import { defineData, Schema } from '@aws-amplify/backend';
+// amplify/data/resource.ts
+import { defineData } from '@aws-amplify/backend';
 
 const schema = {
   models: {
@@ -22,7 +23,7 @@ const schema = {
       },
     },
   },
-} as Schema;
+};
 
 export default defineData({
   schema,
