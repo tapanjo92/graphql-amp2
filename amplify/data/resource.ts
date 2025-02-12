@@ -1,15 +1,26 @@
-import { defineData } from "@aws-amplify/backend";
+import { defineData } from '@aws-amplify/backend';
+import { type Schema } from '@aws-amplify/data-schema';
 
-export const data = defineData({
-  schema: {
+const schema = {
+  models: {
     Note: {
-      primaryIndex: { partitionKey: 'id' },
+      primaryKey: {
+        fieldName: 'id',
+        type: 'ID',
+      },
       fields: {
-        id: 'string',
-        title: 'string',
-        content: 'string',
-        owner: 'string'
+        id: { type: 'ID', required: true },
+        content: { type: 'String', required: true },
+        createdAt: { type: 'AWSDateTime', required: true },
+        updatedAt: { type: 'AWSDateTime', required: true }
       }
     }
+  }
+} satisfies Schema;
+
+export const data = defineData({
+  schema,
+  authorizationModes: {
+    defaultAuthorizationMode: 'userPool'
   }
 });
