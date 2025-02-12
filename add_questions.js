@@ -1,6 +1,7 @@
 // add_questions.js
 const { generateClient } = require("aws-amplify/data");
-const { Schema } = require("./amplify/data/resource"); // Path to your resource.ts
+// Change this line:
+const { Schema } = require("./amplify/build/models");// Path to your resource.ts
 
 const client = generateClient({
     authMode: "apiKey"
