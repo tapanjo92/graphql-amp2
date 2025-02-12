@@ -1,24 +1,52 @@
-import { defineData } from '@aws-amplify/backend';
-import { a } from '@aws-amplify/data-schema';
+import { type ClientSchema, defineData, Schema } from '@aws-amplify/backend';
+
+const schema = {
+  Question: {
+    primaryIndex: { partitionKey: 'id' },
+    attributes: {
+      id: {
+        type: 'string',
+      },
+      questionText: {
+        type: 'string',
+        required: true,
+      },
+      category: {
+        type: 'string',
+        required: true,
+      },
+      difficulty: {
+        type: 'string',
+        required: true,
+      },
+      options: {
+        type: 'array',
+        items: {
+          type: 'string',
+        },
+      },
+      correctAnswer: {
+        type: 'string',
+        required: true,
+      },
+      explanation: {
+        type: 'string',
+      },
+      createdAt: {
+        type: 'string',
+        required: true,
+      },
+      updatedAt: {
+        type: 'string',
+        required: true,
+      },
+    },
+  },
+} satisfies Schema;
+
+export type Schema = ClientSchema<typeof schema>;
 
 export const data = defineData({
-  schema: a.schema({
-    Question: a.model({
-      id: a.id(),
-      questionText: a.string().required(),
-      category: a.string().required(),
-      difficulty: a.string().required(),
-      options: a.list(a.string()),
-      correctAnswer: a.string().required(),
-      explanation: a.string(),
-      createdAt: a.datetime(),
-      updatedAt: a.datetime(),
-    }).authorization([
-      a.allow.public().to(['read']),
-      a.allow.owner().to(['create', 'update', 'delete', 'read'])
-    ])
-  }),
-  authorizationModes: {
-    defaultAuthorizationMode: 'apiKey'
-  }
+  schema,
+  timestamps: true,
 });
