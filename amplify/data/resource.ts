@@ -1,28 +1,20 @@
-import { type ClientSchema, a, defineData } from "@aws-amplify/backend";
+import { defineData } from '@aws-amplify/backend';
+import { type ClientSchema, a } from '@aws-amplify/data-schema';
 
 const schema = a.schema({
-  // Your existing Todo model
-  Todo: a
+  Question: a
     .model({
-      content: a.string(),
-    })
-    .authorization((allow) => [allow.publicApiKey()]),
-
-  // Fixed ReadingPte model
-  ReadingPte: a
-    .model({
-      title: a.string(),
-      passage: a.string(),
-      question: a.string(),
-      correctAnswer: a.string(),
-      options: a.string().array(),  // Changed to use string().array()
-      difficulty: a.enum(['EASY', 'MEDIUM', 'HARD']),
-      type: a.string(),
-      timeLimit: a.integer(),
-      score: a.integer(),
+      id: a.id(),
+      questionText: a.string().required(),
+      category: a.string().required(),
+      difficulty: a.string().required(),
+      options: a.array(a.string()),
+      correctAnswer: a.string().required(),
       explanation: a.string(),
+      createdAt: a.datetime().required(),
+      updatedAt: a.datetime().required(),
     })
-    .authorization((allow) => [allow.publicApiKey()]),
+    .authorization([a.allow.public()]),
 });
 
 export type Schema = ClientSchema<typeof schema>;
@@ -30,11 +22,6 @@ export type Schema = ClientSchema<typeof schema>;
 export const data = defineData({
   schema,
   authorizationModes: {
-    defaultAuthorizationMode: "apiKey",
-    apiKeyAuthorizationMode: {
-      expiresInDays: 30,
-    },
+    defaultAuthorizationMode: 'apiKey',
   },
 });
-
-

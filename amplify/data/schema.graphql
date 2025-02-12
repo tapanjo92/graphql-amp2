@@ -1,0 +1,11 @@
+type Question @model {
+  id: ID! @primaryKey
+  questionText: String!
+  category: String!
+  difficulty: String!
+  options: [String]
+  correctAnswer: String!
+  explanation: String
+  createdAt: AWSDateTime!
+  updatedAt: AWSDateTime!
+}
