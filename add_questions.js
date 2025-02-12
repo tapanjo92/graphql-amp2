@@ -1,14 +1,8 @@
 // add_questions.js
-const { generateClient } = require("@aws-sdk/client-dynamodb");
+const { DynamoDBClient } = require("@aws-sdk/client-dynamodb");
 const { DynamoDBDocument } = require("@aws-sdk/lib-dynamodb");
-const { Schema } = require("./amplify/data/resource");
 
-// Get environment variables that Amplify automatically sets during build
-const { AWS_REGION, AMPLIFY_TABLE_NAME } = process.env;
-
-// Create DynamoDB client
-const client = new DynamoDBDocument(new generateClient({ region: AWS_REGION }));
-
+// Questions data
 const questions = [
   {
     questionType: "Reading",
@@ -48,21 +42,37 @@ const questions = [
 ];
 
 async function addQuestions() {
+  // Initialize DynamoDB client
+  const client = DynamoDBDocument.from(new DynamoDBClient({
+    region: process.env.AWS_REGION
+  }));
+
+  // Get table name from environment variable
+  const tableName = process.env.AMPLIFY_DYNAMODB_TABLE;
+  
+  if (!tableName) {
+    throw new Error('AMPLIFY_DYNAMODB_TABLE environment variable is not set');
+  }
+
+  console.log(`Using table: ${tableName}`);
+
   for (const question of questions) {
     try {
+      const item = {
+        __typename: "PTEQuestion",
+        id: `question_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+        ...question,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
+      };
+
       const params = {
-        TableName: AMPLIFY_TABLE_NAME,
-        Item: {
-          __typename: "PTEQuestion",
-          id: `question_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`, // Generate unique ID
-          ...question,
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString()
-        }
+        TableName: tableName,
+        Item: item
       };
 
       await client.put(params);
-      console.log("Question added successfully:", params.Item);
+      console.log(`Successfully added question: ${item.id}`);
     } catch (error) {
       console.error("Error adding question:", error);
     }
@@ -72,7 +82,13 @@ async function addQuestions() {
 // Only run if this is being executed directly
 if (require.main === module) {
   addQuestions()
-    .then(() => console.log("All questions processing complete"))
-    .catch(err => console.error("Fatal error:", err));
+    .then(() => {
+      console.log("All questions have been processed");
+      process.exit(0);
+    })
+    .catch(err => {
+      console.error("Fatal error:", err);
+      process.exit(1);
+    });
 }
 
