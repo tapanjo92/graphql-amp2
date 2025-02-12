@@ -1,6 +1,6 @@
-import { defineData } from "@aws-amplify/backend";
-import { type Schema } from '@aws-amplify/data-construct';
-import { a } from "@aws-amplify/data-schema";
+import { defineData } from '@aws-amplify/backend';
+import { type ClientSchema } from '@aws-amplify/client-data';
+import { a } from '@aws-amplify/data-schema';
 
 export const data = defineData({
   schema: a.schema({
@@ -9,17 +9,18 @@ export const data = defineData({
       questionText: a.string().required(),
       category: a.string().required(),
       difficulty: a.string().required(),
-      options: a.array(a.string()),
+      options: a.list(a.string()),  // Changed from array to list
       correctAnswer: a.string().required(),
       explanation: a.string(),
       createdAt: a.datetime().required(),
       updatedAt: a.datetime().required(),
     }).authorization([
-      a.allow.public().to(['read']),
-      a.allow.owner().to(['create', 'update', 'delete', 'read']),
-    ]),
+      // Fixed authorization syntax
+      a.allow.public('read'),
+      a.allow.owner(['create', 'update', 'delete', 'read'])
+    ])
   }),
   authorizationModes: {
-    defaultAuthorizationMode: "apiKey",
-  },
+    defaultAuthorizationMode: 'apiKey'
+  }
 });
