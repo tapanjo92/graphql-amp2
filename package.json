@@ -9,7 +9,9 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@aws-amplify/backend-graphql": "^0.3.2",
     "@aws-amplify/cli": "^11.0.0-beta.8",
+    "@aws-amplify/data-schema": "^1.17.5",
     "@aws-amplify/ui-react": "^6.7.0",
     "aws-amplify": "^6.9.0",
     "next": "14.2.10",
@@ -18,7 +20,7 @@
     "react-hook-form": "^7.54.2"
   },
   "devDependencies": {
-    "@aws-amplify/backend": "^1.8.0",
+    "@aws-amplify/backend": "^1.14.0",
     "@aws-amplify/backend-cli": "^1.4.2",
     "@types/node": "^20",
     "@types/react": "^18",
