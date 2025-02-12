@@ -1,11 +1,13 @@
 // add_questions.js
-const { generateClient } = require("aws-amplify/data");
-// Change this line:
-const { Schema } = require("./amplify/build/models");// Path to your resource.ts
+const { generateClient } = require("@aws-sdk/client-dynamodb");
+const { DynamoDBDocument } = require("@aws-sdk/lib-dynamodb");
+const { Schema } = require("./amplify/data/resource");
 
-const client = generateClient({
-    authMode: "apiKey"
-});
+// Get environment variables that Amplify automatically sets during build
+const { AWS_REGION, AMPLIFY_TABLE_NAME } = process.env;
+
+// Create DynamoDB client
+const client = new DynamoDBDocument(new generateClient({ region: AWS_REGION }));
 
 const questions = [
   {
@@ -48,17 +50,29 @@ const questions = [
 async function addQuestions() {
   for (const question of questions) {
     try {
-      const { data, errors } = await client.models.PTEQuestion.create(question);
+      const params = {
+        TableName: AMPLIFY_TABLE_NAME,
+        Item: {
+          __typename: "PTEQuestion",
+          id: `question_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`, // Generate unique ID
+          ...question,
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString()
+        }
+      };
 
-      if (errors) {
-        console.error("Error creating question:", errors);
-      } else {
-        console.log("Question created successfully:", data);
-      }
+      await client.put(params);
+      console.log("Question added successfully:", params.Item);
     } catch (error) {
-      console.error("Caught error:", error);
+      console.error("Error adding question:", error);
     }
   }
 }
 
-addQuestions();
+// Only run if this is being executed directly
+if (require.main === module) {
+  addQuestions()
+    .then(() => console.log("All questions processing complete"))
+    .catch(err => console.error("Fatal error:", err));
+}
+
