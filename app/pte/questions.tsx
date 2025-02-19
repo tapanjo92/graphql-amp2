@@ -11,13 +11,13 @@ interface Question {
   id: string;
   questionType: string;
   questionText: string;
-  options: string[] | null;  // Updated to allow null
-  correctAnswer: string | null;  // Updated to allow null
-  explanation: string | null;  // Updated to allow null
-  difficulty: 'Easy' | 'Medium' | 'Hard' | null;  // Updated to allow null
-  audioUrl: string | null;  // Updated to allow null
-  imageUrl: string | null;  // Updated to allow null
-  passageText: string | null;  // Updated to allow null
+  options: string[] | null;
+  correctAnswer: string | null;
+  explanation: string | null;
+  difficulty: 'Easy' | 'Medium' | 'Hard' | null;
+  audioUrl: string | null;
+  imageUrl: string | null;
+  passageText: string | null;
 }
 
 export default function Questions() {
@@ -31,7 +31,21 @@ export default function Questions() {
         const response = await client.models.PTEQuestion.list();
         // Get only 5 random questions
         const shuffled = response.data.sort(() => 0.5 - Math.random());
-        const selectedQuestions = shuffled.slice(0, 5);
+
+        // Type cast each item to explicitly match the Question interface, handling nulls safely.
+        const selectedQuestions = shuffled.slice(0, 5).map(item => ({
+          id: item.id,
+          questionType: item.questionType,
+          questionText: item.questionText,
+          options: item.options ? item.options.filter((option): option is string => option !== null) : null, // Filter out nulls and assert non-null
+          correctAnswer: item.correctAnswer ?? null,
+          explanation: item.explanation ?? null,
+          difficulty: item.difficulty ?? null,
+          audioUrl: item.audioUrl ?? null,
+          imageUrl: item.imageUrl ?? null,
+          passageText: item.passageText ?? null,
+        })) as Question[];
+
         setQuestions(selectedQuestions);
       } catch (err) {
         console.error("Error fetching questions:", err);
@@ -65,16 +79,16 @@ export default function Questions() {
       <Heading level={2} className="text-2xl font-bold mb-6">
         Practice Questions
       </Heading>
-      
+
       <View className="space-y-6">
         {questions.map((question, index) => (
-          <View 
+          <View
             key={question.id}
             className="p-6 bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow"
             role="article"
             aria-labelledby={`question-${question.id}-title`}
           >
-            <Text 
+            <Text
               className="font-semibold mb-2"
               id={`question-${question.id}-title`}
             >
@@ -83,7 +97,7 @@ export default function Questions() {
             <Text className="text-gray-700 mb-4">
               {question.questionText}
             </Text>
-            
+
             {question.audioUrl && (
               <audio
                 controls
@@ -94,7 +108,7 @@ export default function Questions() {
                 Your browser does not support the audio element.
               </audio>
             )}
-            
+
             {question.imageUrl && (
               <img
                 src={question.imageUrl}
