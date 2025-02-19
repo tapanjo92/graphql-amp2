@@ -4,13 +4,10 @@ import React from 'react';
 import { Heading, Flex, Button, Authenticator } from '@aws-amplify/ui-react';
 import ReadingOptions from './ReadingOptions';
 import { redirect } from 'next/navigation';
-import { Amplify } from 'aws-amplify';
 import { generateClient } from 'aws-amplify/api';
-import config from '../../amplifyconfiguration.json';
 import { signOut } from 'aws-amplify/auth';
 
-Amplify.configure(config);
-const client = generateClient();
+const client = generateClient(); // Create client outside the component
 
 export default function ReadingPage() {
 
