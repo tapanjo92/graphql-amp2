@@ -6,7 +6,7 @@ import { generateClient } from '@aws-amplify/api';
 import { Authenticator, useAuthenticator, View } from '@aws-amplify/ui-react';
 import type { AuthenticatorProps } from '@aws-amplify/ui-react';
 import type { AuthUser } from 'aws-amplify/auth';
-import { type Element } from 'react';
+import { type ReactElement } from 'react';
 
 import config from '../amplify_outputs.json';
 
@@ -55,7 +55,7 @@ export default function Providers({
         },
       }}
     >
-      {({ route, authStatus }: AuthenticatorProps): Element => {
+      {({ route, authStatus }: AuthenticatorProps): ReactElement => {
         // Check if we're on a protected route
         const pathname = typeof window !== 'undefined' ? window.location.pathname : '';
         const isProtectedRoute = pathname.startsWith('/pte') || pathname.startsWith('/profile');
