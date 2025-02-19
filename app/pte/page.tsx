@@ -1,6 +1,9 @@
+use client;
+
 import React from 'react';
 import { Authenticator, Button, View, Heading } from '@aws-amplify/ui-react';
 import { useRouter } from 'next/navigation';
+import { client } from '../providers';
 
 interface Option {
   title: string;

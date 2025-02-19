@@ -1,67 +1,85 @@
-"use client";
-import { Authenticator, Button } from '@aws-amplify/ui-react';
+import React from 'react';
 import { useRouter } from 'next/navigation';
+import { Authenticator, Button } from '@aws-amplify/ui-react';
+import '@aws-amplify/ui-react/styles.css';
 
-const ReadingPage = () => {
+type ReadingSubsection = {
+  title: string;
+  description: string;
+  path: string;
+};
+
+const readingSubsections: ReadingSubsection[] = [
+  {
+    title: "Multiple-choice: choose single answer",
+    description: "Select one answer from the options.",
+    path: "/pte/reading/single-choice",
+  },
+  {
+    title: "Multiple-choice: choose multiple answers",
+    description: "Select one or more answers from the options.",
+    path: "/pte/reading/multiple-choice",
+  },
+  {
+    title: "Re-order paragraphs:",
+    description: "Arrange the paragraphs in the correct order.",
+    path: "/pte/reading/reorder-paragraphs",
+  },
+  {
+    title: "Fill in the blanks (drag and drop):",
+    description: "Drag and drop to fill in the missing words.",
+    path: "/pte/reading/fill-in-the-blanks",
+  },
+  {
+    title: "Reading & Writing:",
+    description: "Engage in both reading and writing exercises.",
+    path: "/pte/reading/reading-and-writing",
+  },
+];
+
+const ReadingPage: React.FC = () => {
   const router = useRouter();
 
-  const readingSubsections = [
-    {
-      title: "Multiple-choice, Choose Single Answer",
-      description: "Practice questions where you need to select one correct answer from multiple options",
-      path: "/pte/reading/single-choice"
-    },
-    {
-      title: "Multiple-choice, Choose Multiple Answers",
-      description: "Practice questions where you need to select multiple correct answers",
-      path: "/pte/reading/multiple-choice"
-    },
-    {
-      title: "Reading & Fill in the Blanks",
-      description: "Practice completing passages by filling in missing words",
-      path: "/pte/reading/fill-blanks"
-    }
-  ];
+  const handleCardClick = (path: string): void => {
+    if (!path) return;
+    router.push(path);
+  };
 
   return (
     <Authenticator>
-      {() => (
-        <main className="max-w-5xl mx-auto p-6 bg-white">
-          <div className="flex justify-between items-center mb-6 border-b pb-4">
-            <h1 className="text-2xl font-bold text-gray-800">PTE Reading Practice</h1>
-          </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-10">
-            {readingSubsections.map((section, index) => (
-              <div 
-                key={index}
-                className="p-6 bg-gray-100 rounded-lg text-center shadow hover:shadow-lg transition-shadow"
-                role="button"
-                tabIndex={0}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter' || e.key === ' ') {
-                    router.push(section.path);
-                  }
-                }}
-              >
-                <h2 className="text-xl font-semibold text-gray-700 mb-4">{section.title}</h2>
-                <p className="text-gray-600 mb-6">{section.description}</p>
-                <Button
-                  onClick={() => router.push(section.path)}
-                  variation="primary"
-                  className="bg-blue-500 hover:bg-blue-600 text-white px-6 py-2 rounded transition-colors"
-                  aria-label={`Start ${section.title} practice`}
+      {({ signOut, user }) => (
+        <div className="min-h-screen bg-gray-100 p-8">
+          <div className="max-w-4xl mx-auto">
+            <h1 className="text-3xl font-bold mb-6">Reading Options</h1>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {readingSubsections.map((option, idx) => (
+                <div
+                  key={idx}
+                  tabIndex={0}
+                  aria-label={option.title}
+                  className="bg-white shadow-md rounded-lg p-4 cursor-pointer hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  onClick={() => handleCardClick(option.path)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      handleCardClick(option.path);
+                    }
+                  }}
                 >
-                  Start Practice
-                </Button>
-              </div>
-            ))}
+                  <h2 className="text-xl font-semibold mb-2">{option.title}</h2>
+                  <p className="text-gray-600">{option.description}</p>
+                </div>
+              ))}
+            </div>
+            <div className="mt-8">
+              <Button onClick={signOut} aria-label="Sign Out" className="bg-red-500 hover:bg-red-600">
+                Sign Out
+              </Button>
+            </div>
           </div>
-        </main>
+        </div>
       )}
     </Authenticator>
   );
 };
 
 export default ReadingPage;
-
