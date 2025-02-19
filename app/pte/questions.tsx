@@ -11,13 +11,13 @@ interface Question {
   id: string;
   questionType: string;
   questionText: string;
-  options?: string[] | null;
-  correctAnswer?: string;
-  explanation?: string;
-  difficulty?: 'Easy' | 'Medium' | 'Hard';
-  audioUrl?: string;
-  imageUrl?: string;
-  passageText?: string;
+  options: string[] | null;  // Updated to allow null
+  correctAnswer: string | null;  // Updated to allow null
+  explanation: string | null;  // Updated to allow null
+  difficulty: 'Easy' | 'Medium' | 'Hard' | null;  // Updated to allow null
+  audioUrl: string | null;  // Updated to allow null
+  imageUrl: string | null;  // Updated to allow null
+  passageText: string | null;  // Updated to allow null
 }
 
 export default function Questions() {
