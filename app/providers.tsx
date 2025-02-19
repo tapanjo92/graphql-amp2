@@ -1,8 +1,13 @@
 "use client";
 
+import React from 'react';
 import { Amplify } from 'aws-amplify';
 import { generateClient } from '@aws-amplify/api';
-import { Authenticator, AuthUser, AuthEventData } from '@aws-amplify/ui-react';
+import { Authenticator, useAuthenticator, View } from '@aws-amplify/ui-react';
+import type { AuthenticatorRenderProps } from '@aws-amplify/ui-react';
+import type { AuthUser } from 'aws-amplify/auth';
+import { type Element } from 'react';
+
 import config from '../amplify_outputs.json';
 
 // Configure Amplify for the application
@@ -15,6 +20,8 @@ export default function Providers({
 }: {
   children: React.ReactNode;
 }) {
+  // Centralize auth state management
+  // Centralize auth state management
   // Centralize auth state management
   return (
     <Authenticator
@@ -48,7 +55,7 @@ export default function Providers({
         },
       }}
     >
-      {({ route, authStatus, signOut, user }: { route: string, authStatus: string, signOut?: (data?: AuthEventData) => void, user?: AuthUser }) => {
+      {({ route, authStatus }: AuthenticatorRenderProps): Element => {
         // Check if we're on a protected route
         const pathname = typeof window !== 'undefined' ? window.location.pathname : '';
         const isProtectedRoute = pathname.startsWith('/pte') || pathname.startsWith('/profile');
@@ -57,21 +64,21 @@ export default function Providers({
         // Show loading spinner while configuring auth
         if (authStatus === "configuring") {
           return (
-            <div className="min-h-screen flex items-center justify-center">
-              <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-gray-900"></div>
-            </div>
+            <View className="min-h-screen flex items-center justify-center">
+              <View className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-gray-900" />
+            </View>
           );
         }
 
-        // For protected routes, only show content when authenticated
-        if (isProtectedRoute) {
-          // Return the Authenticator if not authenticated, otherwise return the children
-          return isAuthenticated ? children : <Authenticator />;
+        if (isProtectedRoute && !isAuthenticated) {
+          return <Authenticator />;
         }
-
-        // For public routes, always show content
-        return children;
+        
+        return <View>{children}</View>;
       }}
     </Authenticator>
   );
 }
+
+
+
