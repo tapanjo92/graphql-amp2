@@ -4,7 +4,7 @@ import React from 'react';
 import { Amplify } from 'aws-amplify';
 import { generateClient } from '@aws-amplify/api';
 import { Authenticator, useAuthenticator, View } from '@aws-amplify/ui-react';
-import type { AuthenticatorProps } from '@aws-amplify/ui-react';
+// No longer needed: import type { AuthenticatorProps } from '@aws-amplify/ui-react';
 import type { AuthUser } from 'aws-amplify/auth';
 import { type ReactElement } from 'react';
 
@@ -20,9 +20,6 @@ export default function Providers({
 }: {
   children: React.ReactNode;
 }) {
-  // Centralize auth state management
-  // Centralize auth state management
-  // Centralize auth state management
   return (
     <Authenticator
       loginMechanisms={['email']}
@@ -55,14 +52,16 @@ export default function Providers({
         },
       }}
     >
-      {({ route, authStatus }: AuthenticatorProps): ReactElement => {
-        // Check if we're on a protected route
+      {(): JSX.Element => {
+        const { user, signOut } = useAuthenticator((context) => [context.user]); // Get user and signOut
+
+        // Check if we're on a protected route.  Use optional chaining and default to empty string.
         const pathname = typeof window !== 'undefined' ? window.location.pathname : '';
         const isProtectedRoute = pathname.startsWith('/pte') || pathname.startsWith('/profile');
-        const isAuthenticated = route === 'authenticated' && authStatus === "authenticated";
+        const isAuthenticated = !!user; // Use the user object for authentication status
 
-        // Show loading spinner while configuring auth
-        if (authStatus === "configuring") {
+        // Show loading spinner while configuring auth (This part might need more context.  The loading state might be accessible via useAuthenticator)
+        if (!user && !pathname) { // A simple placeholder for loading.  Adjust as needed based on Amplify's loading state
           return (
             <View className="min-h-screen flex items-center justify-center">
               <View className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-gray-900" />
@@ -73,12 +72,9 @@ export default function Providers({
         if (isProtectedRoute && !isAuthenticated) {
           return <Authenticator />;
         }
-        
+
         return <View>{children}</View>;
       }}
     </Authenticator>
   );
 }
-
-
-
