@@ -1,8 +1,8 @@
-// app/layout.tsx
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
-import '@aws-amplify/ui-react/styles.css'; // Import Amplify UI styles
+import Providers from "./providers";
+import HeaderComponent from "../components/HeaderComponent"; // Correct path to HeaderComponent
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -18,7 +18,13 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className={inter.className}>{children}</body>
+      <body className={inter.className}>
+        <Providers>
+          <HeaderComponent />
+          {children}
+        </Providers>
+      </body>
     </html>
   );
 }
+
