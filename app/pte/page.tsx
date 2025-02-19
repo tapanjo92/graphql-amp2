@@ -1,4 +1,4 @@
-use client;
+"use client";
 
 import React from 'react';
 import { Authenticator, Button, View, Heading } from '@aws-amplify/ui-react';
