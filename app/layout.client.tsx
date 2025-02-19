@@ -1,19 +1,19 @@
 "use client";
 
 import React from "react";
-// No need for useAuthenticator here anymore!
 import HeaderComponent from "../components/HeaderComponent";
 
 export default function ClientLayout({ children }: { children: React.ReactNode }) {
+    // Instead of accessing props directly from children, we need to check if it's a View component
+    const childrenArray = React.Children.toArray(children);
+    const shouldShowHeader = childrenArray.length > 0 && 
+        React.isValidElement(childrenArray[0]) && 
+        childrenArray[0].props['data-should-show-header'] === 'true';
 
-    // Get shouldShowHeader from the parent (Providers)
-    const shouldShowHeader = (children as React.ReactElement).props['data-should-show-header'] === 'true';
-
-
-  return (
-    <>
-      {shouldShowHeader && <HeaderComponent />}
-      {children}
-    </>
-  );
+    return (
+        <>
+            {shouldShowHeader && <HeaderComponent />}
+            {children}
+        </>
+    );
 }
