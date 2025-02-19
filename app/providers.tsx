@@ -1,16 +1,14 @@
 "use client";
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Amplify } from 'aws-amplify';
 import { generateClient } from '@aws-amplify/api';
 import { Authenticator, useAuthenticator, View } from '@aws-amplify/ui-react';
-// No longer needed: import type { AuthenticatorProps } from '@aws-amplify/ui-react';
 import type { AuthUser } from 'aws-amplify/auth';
 import { type ReactElement } from 'react';
 
 import config from '../amplify_outputs.json';
 
-// Configure Amplify for the application
 Amplify.configure(config);
 
 export const client = generateClient();
@@ -20,6 +18,12 @@ export default function Providers({
 }: {
   children: React.ReactNode;
 }) {
+  const [isInitializing, setIsInitializing] = useState(true);
+
+  useEffect(() => {
+    setIsInitializing(false);
+  }, []);
+
   return (
     <Authenticator
       loginMechanisms={['email']}
@@ -53,15 +57,15 @@ export default function Providers({
       }}
     >
       {(): JSX.Element => {
-        const { user, signOut } = useAuthenticator((context) => [context.user]); // Get user and signOut
+        const { user } = useAuthenticator((context) => [context.user]);
 
-        // Check if we're on a protected route.  Use optional chaining and default to empty string.
         const pathname = typeof window !== 'undefined' ? window.location.pathname : '';
         const isProtectedRoute = pathname.startsWith('/pte') || pathname.startsWith('/profile');
-        const isAuthenticated = !!user; // Use the user object for authentication status
+        const isAuthenticated = !!user;
 
-        // Show loading spinner while configuring auth (This part might need more context.  The loading state might be accessible via useAuthenticator)
-        if (!user && !pathname) { // A simple placeholder for loading.  Adjust as needed based on Amplify's loading state
+        const shouldShowHeader = isAuthenticated && isProtectedRoute; // Calculate whether to show header
+
+        if (isInitializing) {
           return (
             <View className="min-h-screen flex items-center justify-center">
               <View className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-gray-900" />
@@ -73,7 +77,8 @@ export default function Providers({
           return <Authenticator />;
         }
 
-        return <View>{children}</View>;
+        // Pass shouldShowHeader as a prop
+        return <View data-should-show-header={shouldShowHeader.toString()}>{children}</View>;
       }}
     </Authenticator>
   );

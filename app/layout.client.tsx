@@ -1,19 +1,18 @@
 "use client";
 
 import React from "react";
-import { useAuthenticator } from "@aws-amplify/ui-react";
-import { usePathname } from "next/navigation";
+// No need for useAuthenticator here anymore!
 import HeaderComponent from "../components/HeaderComponent";
 
 export default function ClientLayout({ children }: { children: React.ReactNode }) {
-  const { route, authStatus } = useAuthenticator((context) => [context.route, context.authStatus]);
-  const pathname = usePathname();
-  const isProtectedRoute = pathname.startsWith('/pte') || pathname.startsWith('/profile');
-  const isAuthenticated = route === 'authenticated' && authStatus === "authenticated";
+
+    // Get shouldShowHeader from the parent (Providers)
+    const shouldShowHeader = (children as React.ReactElement).props['data-should-show-header'] === 'true';
+
 
   return (
     <>
-      {isAuthenticated && isProtectedRoute && <HeaderComponent />}
+      {shouldShowHeader && <HeaderComponent />}
       {children}
     </>
   );
