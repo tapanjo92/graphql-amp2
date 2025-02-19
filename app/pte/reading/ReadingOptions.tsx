@@ -1,8 +1,9 @@
+//// filepath: /app/pte/reading/ReadingOptions.tsx
 "use client";
 
 import React from "react";
 import Link from "next/link";
-import { Card, Heading, Text, Flex, Button } from "@aws-amplify/ui-react";
+import { Button } from "@aws-amplify/ui-react";
 
 interface ReadingOption {
   title: string;
@@ -40,21 +41,27 @@ const readingOptions: ReadingOption[] = [
 
 const ReadingOptions: React.FC = () => {
   return (
-    <Flex direction="column" gap="medium">
+    <section className="flex flex-col gap-4 p-4">
+      <h1 className="text-2xl font-bold mb-4">Reading Options</h1>
       {readingOptions.map((option, index) => (
-        <Card key={index} padding="large" className="border border-gray-300 rounded-lg shadow-md">
-          <Link href={option.url} passHref legacyBehavior>
-            <Flex direction="column" gap="small" className="cursor-pointer">
-              <Heading level={4} className="text-blue-800">
-                {option.title}
-              </Heading>
-              <Text className="text-gray-700">{option.description}</Text>
-            </Flex>
-           </Link>
-        </Card>
+        <Link key={index} href={option.url} passHref>
+          <Button
+            variation="primary"
+            className="text-base font-medium p-4 text-center"
+            aria-label={option.title}
+          >
+            <div className="flex flex-col">
+              <span>{option.title}</span>
+              <span className="text-sm font-normal text-gray-700">
+                {option.description}
+              </span>
+            </div>
+          </Button>
+        </Link>
       ))}
-    </Flex>
+    </section>
   );
 };
 
 export default ReadingOptions;
+
