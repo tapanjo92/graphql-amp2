@@ -16,8 +16,6 @@ export default function Providers({
   children: React.ReactNode;
 }) {
   // Centralize auth state management
-  // Centralize auth state management
-  // Centralize auth state management
   return (
     <Authenticator
       loginMechanisms={['email']}
@@ -67,6 +65,7 @@ export default function Providers({
 
         // For protected routes, only show content when authenticated
         if (isProtectedRoute) {
+          // Return the Authenticator if not authenticated, otherwise return the children
           return isAuthenticated ? children : <Authenticator />;
         }
 
@@ -76,6 +75,3 @@ export default function Providers({
     </Authenticator>
   );
 }
-
-
-
