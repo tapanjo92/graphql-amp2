@@ -2,6 +2,7 @@
 
 import { signOut } from 'aws-amplify/auth';
 import { useRouter } from 'next/navigation';
+import { useAuthenticator } from '@aws-amplify/ui-react';
 import React, { useCallback, useState } from 'react';
 import { AuthError } from 'aws-amplify/auth';
 
@@ -25,8 +26,8 @@ const LogoutButton: React.FC = () => {
       // Clear any application state or local storage if needed
       localStorage.clear();
       // Redirect to home page after successful logout
-      router.push('/');
-      router.refresh(); // Refresh the page to ensure all auth states are reset
+      router.replace('/');
+      router.refresh();
     } catch (error) {
       // Type guard to check if error is AuthError
       if (error instanceof AuthError) {
@@ -39,6 +40,13 @@ const LogoutButton: React.FC = () => {
       setIsLoading(false);
     }
   }, [router]);
+
+  const { route, authStatus } = useAuthenticator((context) => [context.route, context.authStatus]);
+
+  // Only show logout button when authenticated
+  if (route !== 'authenticated' || authStatus !== "authenticated") {
+    return null;
+  }
 
   return (
     <div className="logout-container">
@@ -86,3 +94,4 @@ const LogoutButton: React.FC = () => {
 };
 
 export default LogoutButton;
+
