@@ -5,18 +5,13 @@ import {
   defineFunction
 } from '@aws-amplify/backend';
 
-// Define a Lambda function using defineFunction without passing an extraneous "name" property.
-// Use the numeric Node.js version (e.g. 20 for Node 20) as per Amplify Gen2 docs.
+// Define the function using the correct property for the handler code.
+// Use "entry" instead of "code". (Omit "runtime" if it causes type errors.)
 const getQuestionsResolver = defineFunction({
-  // Specify the runtime as a number (e.g. 20 for Node 20)
-  runtime: 20,
-  // Use code.path (not entry) to point to the function code
-  code: {
-    path: './functions/getQuestionsResolver.ts'
-  }
+  entry: './functions/getQuestionsResolver.ts'
 });
 
-// Define your data model schema for the "PTEQuestion" model.
+// Define the data model schema.
 const schema = a.schema({
   PTEQuestion: a.model({
     questionType: a.string().required(),
@@ -29,31 +24,34 @@ const schema = a.schema({
     imageUrl: a.string(),
     passageText: a.string(),
   }).authorization(allow => [
-    // Note: Use publicApiKey for testing ONLY. Remove in production!
-    allow.publicApiKey(),
+    // For initial testing only; remove for production.
+    allow.publicApiKey()
   ]),
+
+  // Define a custom mutation named "listPTEQuestions".
+  // (You could also use a.query() if it’s a read-only operation.)
+  listPTEQuestions: a.mutation()
+    // No arguments are needed here.
+    .arguments({})
+    // Use a.array() to specify an array return type.
+    .returns(a.array(a.ref('PTEQuestion')))
+    .authorization(allow => [
+      allow.publicApiKey()
+    ])
+    .handler(a.handler.function(getQuestionsResolver))
 });
 
-// Instead of using a non-existent "mutation" method on schema, define the custom mutation via operations.
-// The custom mutation "listPTEQuestions" uses our previously defined function.
-schema.operation('listPTEQuestions', operation =>
-  operation
-    .custom()
-    .function(getQuestionsResolver)
-    .returns(a.list(a.ref('PTEQuestion')))
-);
-
-// Export the client schema type and data definition.
+// Export the client schema type and data configuration.
 export type Schema = ClientSchema<typeof schema>;
 
 export const data = defineData({
   schema,
   authorizationModes: {
     defaultAuthorizationMode: 'apiKey',
-    apiKeyAuthorizationMode: { expiresInDays: 30 },
+    apiKeyAuthorizationMode: { expiresInDays: 30 }
   },
   functions: {
-    getQuestionsResolver,
-  },
+    getQuestionsResolver
+  }
 });
 
