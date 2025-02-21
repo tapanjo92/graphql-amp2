@@ -17,15 +17,17 @@ const schema = a.schema({
   ])
 });
 
-// Define the function - Correct runtime specification
+// Define the function - Correct runtime
 const getQuestionsResolver = defineFunction({
   name: 'getQuestionsResolver',
-  runtime: a.runtime.NODEJS_20_X, // Correct at last!
+  runtime: a.func.runtime.NODEJS_20_X, // Correct!
   entry: './functions/getQuestionsResolver.ts',
 });
 
-// Attach the resolver - Correct method and arguments
-schema.PTEQuestion.override('list', { resolver: getQuestionsResolver });
+// Attach the resolver - *Correctly* this time!
+schema.override(schema.PTEQuestion, {
+  list: { resolver: getQuestionsResolver }, // Key change!
+});
 
 export type Schema = ClientSchema<typeof schema>;
 
@@ -36,6 +38,6 @@ export const data = defineData({
     apiKeyAuthorizationMode: { expiresInDays: 30 }
   },
   functions: {
-    getQuestionsResolver: getQuestionsResolver, // Correct function registration
+    getQuestionsResolver // Correct function registration
   }
 });
