@@ -1,26 +1,27 @@
-// amplify/data/resource.ts
-import { a, defineData, type ClientSchema } from '@aws-amplify/backend';
+import { a, defineData, defineFunction, type ClientSchema } from '@aws-amplify/backend';
 
 const schema = a.schema({
   PTEQuestion: a.model({
-    questionType: a.string().required(), // Made required
-    questionText: a.string().required(), // Made required
+    questionType: a.string().required(),
+    questionText: a.string().required(),
     options: a.string().array(),
-    correctAnswer: a.string(), //  Consider making this an array if multiple answers are possible
+    correctAnswer: a.string(),
     explanation: a.string(),
     difficulty: a.enum(['Easy', 'Medium', 'Hard']),
-    audioUrl: a.string(), // Added for listening questions (optional)
-    imageUrl: a.string(),  // Added for image-based questions (optional)
-    passageText: a.string(), // Added for reading comprehension (optional)
+    audioUrl: a.string(),
+    imageUrl: a.string(),
+    passageText: a.string(),
   })
   .authorization(allow => [
-    allow.publicApiKey(), // For initial testing ONLY.  REMOVE FOR PRODUCTION!
-    // More secure options (choose one or more, and configure Cognito):
-    // allow.private().to(['read']), // Authenticated users can read all
-    // allow.owner(),             // Users can manage their own questions
-  ]),
+    allow.publicApiKey(), // For initial testing ONLY. REMOVE FOR PRODUCTION!
+  ])
+    .resolve('listPTEQuestions', a.custom(getQuestionsResolver)) // Add this line!
+});
 
-  // You could add other models here (e.g., UserProfile, TestResult)
+//Define function for getQuestions
+const getQuestionsResolver = defineFunction({
+    name: 'getQuestionsResolver',
+    filepath: './functions/getQuestionsResolver.ts'
 });
 
 export type Schema = ClientSchema<typeof schema>;
@@ -28,7 +29,7 @@ export type Schema = ClientSchema<typeof schema>;
 export const data = defineData({
   schema,
   authorizationModes: {
-    defaultAuthorizationMode: 'apiKey',  // For use with publicApiKey
+    defaultAuthorizationMode: 'apiKey',
     apiKeyAuthorizationMode: { expiresInDays: 30 }
   }
 });
