@@ -19,16 +19,16 @@ const schema = a.schema({
 
 // Define the function - Correct runtime
 const getQuestionsResolver = defineFunction({
-  name: 'getQuestionsResolver',
-  runtime: 'nodejs20.x',
+  functionName: 'getQuestionsResolver',
+  runtime: a.FunctionRuntime.NODE20,
   handler: 'index.handler',
   entry: './functions/getQuestionsResolver.ts'
 });
 
 // Attach the resolver - *Correctly* this time!
-schema.query('listPTEQuestions', {
+schema.addQuery('listPTEQuestions', {
   handler: getQuestionsResolver,
-  returns: schema.PTEQuestion.list()
+  returns: schema.models.PTEQuestion.list()
 });
 
 export type Schema = ClientSchema<typeof schema>;
