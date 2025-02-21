@@ -14,21 +14,20 @@ const schema = a.schema({
   })
   .authorization(allow => [
     allow.publicApiKey(), // For initial testing ONLY. REMOVE FOR PRODUCTION!
-  ])
+  ]),
+
+  queries: {
+    listPTEQuestions: a.query()
+      .function(getQuestionsResolver)
+      .returns(a.many(a.ref('PTEQuestion')))
+  }
 });
 
-// Define the function - Correct runtime
 const getQuestionsResolver = defineFunction({
-  functionName: 'getQuestionsResolver',
-  runtime: a.FunctionRuntime.NODE20,
+  name: 'getQuestionsResolver',
+  runtime: 'nodejs20',
   handler: 'index.handler',
   entry: './functions/getQuestionsResolver.ts'
-});
-
-// Attach the resolver - *Correctly* this time!
-schema.addQuery('listPTEQuestions', {
-  handler: getQuestionsResolver,
-  returns: schema.models.PTEQuestion.list()
 });
 
 export type Schema = ClientSchema<typeof schema>;
@@ -40,6 +39,7 @@ export const data = defineData({
     apiKeyAuthorizationMode: { expiresInDays: 30 }
   },
   functions: {
-    getQuestionsResolver // Correct function registration
+    getQuestionsResolver
   }
 });
+
