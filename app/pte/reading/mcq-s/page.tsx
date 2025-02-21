@@ -1,8 +1,8 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-// Import the default export API and the helper graphqlOperation from the modular API package
-import API, { graphqlOperation } from "@aws-amplify/api";
+// Import API and graphqlOperation from "aws-amplify"
+import { API, graphqlOperation } from "aws-amplify";
 import { Card, Heading, Text, Flex } from "@aws-amplify/ui-react";
 
 // A simple custom Spinner component using TailwindCSS
