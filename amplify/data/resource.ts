@@ -20,12 +20,14 @@ const schema = a.schema({
 // Define the function
 const getQuestionsResolver = defineFunction({
   name: 'getQuestionsResolver',
-  runtime: a.nodejs18x, // Use the Amplify-provided enum
+  runtime: a.func.runtime.NODEJS_20_X, // Correct runtime specification
   entry: './functions/getQuestionsResolver.ts',
 });
 
-// Attach the resolver *correctly*
-schema.PTEQuestion.override('list', getQuestionsResolver);
+// Attach the resolver correctly
+schema.override(schema.PTEQuestion, {
+  list: getQuestionsResolver
+});
 
 export type Schema = ClientSchema<typeof schema>;
 
