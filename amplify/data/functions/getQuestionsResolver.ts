@@ -15,9 +15,9 @@ type PTEQuestion = {
   passageText?: string;
 };
 
-// Extend input arguments with filtering and sorting options
+// Update input arguments: limit is now a string to match the schema
 type ListPTEQuestionsInput = {
-  limit?: number;
+  limit?: string;
   nextToken?: string;
   questionType?: string;
   difficulty?: 'Easy' | 'Medium' | 'Hard';
@@ -37,11 +37,14 @@ export const handler: AppSyncResolverHandler<ListPTEQuestionsInput, ListPTEQuest
   if (!tableName) {
     throw new Error('PTEQUESTION_TABLE_NAME environment variable not set.');
   }
+  
+  // Convert limit from string to number; default to 5 if not provided
+  const limit = event.arguments?.limit ? parseInt(event.arguments.limit, 10) : 5;
 
   // Build scan parameters
   const params: DynamoDB.DocumentClient.ScanInput = {
     TableName: tableName,
-    Limit: event.arguments?.limit ?? 5,
+    Limit: limit,
     ExclusiveStartKey: event.arguments?.nextToken ? { id: event.arguments.nextToken } : undefined,
   };
 
@@ -73,7 +76,6 @@ export const handler: AppSyncResolverHandler<ListPTEQuestionsInput, ListPTEQuest
       items.sort((a, b) => {
         const aVal = a[sortKey];
         const bVal = b[sortKey];
-        // Handle possible undefined values
         if (aVal === undefined || bVal === undefined) return 0;
         if (aVal < bVal) return -1 * sortOrder;
         if (aVal > bVal) return 1 * sortOrder;

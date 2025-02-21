@@ -36,7 +36,8 @@ const schema = a.schema({
   // Define a custom mutation that returns our custom type.
   listPTEQuestions: a.mutation()
     .arguments({
-      limit: a.scalar('Int'), // Use a.scalar('Int') for numeric (integer) input.
+      // Using a.string() for limit as a workaround
+      limit: a.string(),
       nextToken: a.string(),
       questionType: a.string(),
       difficulty: a.enum(['Easy', 'Medium', 'Hard']),
