@@ -9,12 +9,14 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@aws-amplify/api": "^6.3.1",
+    "@aws-amplify/api-graphql": "^4.7.5",
     "@aws-amplify/cli": "^11.0.0-beta.8",
-    "@aws-amplify/ui-react": "^6.7.0",
+    "@aws-amplify/ui-react": "^6.9.1",
     "@aws-sdk/client-dynamodb": "^3.744.0",
     "@aws-sdk/lib-dynamodb": "^3.744.0",
     "@types/aws-lambda": "^8.10.147",
-    "aws-amplify": "^6.9.0",
+    "aws-amplify": "^6.13.1",
     "aws-sdk": "^2.1692.0",
     "next": "14.2.10",
     "react": "^18",

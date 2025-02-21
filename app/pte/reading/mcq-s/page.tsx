@@ -82,7 +82,7 @@ const MCQSPage: React.FC = () => {
       )) as { data: ListPTEQuestionsResponse };
 
       let items = response.data.listPTEQuestions.items;
-      // If items are returned as a JSON string, parse them
+      // If items are returnedd as a JSON string, parse them
       if (typeof items === "string") {
         items = JSON.parse(items);
       }
