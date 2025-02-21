@@ -1,9 +1,8 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-// Import the API category from the modular package
-import { API } from "@aws-amplify/api";
-// Import graphqlOperation from its dedicated package
+// Import API from the REST package and graphqlOperation from the GraphQL package
+import { API } from "@aws-amplify/api-rest";
 import { graphqlOperation } from "@aws-amplify/api-graphql";
 import { Card, Heading, Text, Flex } from "@aws-amplify/ui-react";
 
@@ -82,7 +81,7 @@ const MCQSPage: React.FC = () => {
       )) as { data: ListPTEQuestionsResponse };
 
       let items = response.data.listPTEQuestions.items;
-      // If items are returnedd as a JSON string, parse them
+      // If items are returned as a JSON string, parse them
       if (typeof items === "string") {
         items = JSON.parse(items);
       }
