@@ -1,8 +1,8 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-// Import API and graphqlOperation from the modular API package
-import { API, graphqlOperation } from "@aws-amplify/api";
+// Import Amplify as default and destructure API and graphqlOperation
+import Amplify, { API, graphqlOperation } from "aws-amplify";
 import { Card, Heading, Text, Flex } from "@aws-amplify/ui-react";
 
 // A simple custom Spinner component using TailwindCSS
@@ -72,7 +72,6 @@ const MCQSPage: React.FC = () => {
       const variables = {
         limit: "5", // Default limit as string per backend schema
         nextToken: nextToken,
-        // Additional filtering/sorting variables can be added here
       };
 
       const response = (await API.graphql(
@@ -98,7 +97,6 @@ const MCQSPage: React.FC = () => {
 
   useEffect(() => {
     fetchQuestions();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   if (loading && questions.length === 0) {
