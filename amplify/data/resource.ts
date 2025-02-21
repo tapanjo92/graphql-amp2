@@ -1,5 +1,13 @@
 import { a, defineData, defineFunction, type ClientSchema } from '@aws-amplify/backend';
 
+// Define the function first before using it in the schema
+const getQuestionsResolver = defineFunction({
+  name: 'getQuestionsResolver',
+  runtime: a.FunctionRuntime.NODE_20, // Correct runtime syntax
+  handler: 'index.handler',
+  entry: './functions/getQuestionsResolver.ts'
+});
+
 const schema = a.schema({
   PTEQuestion: a.model({
     questionType: a.string().required(),
@@ -15,20 +23,13 @@ const schema = a.schema({
   .authorization(allow => [
     allow.publicApiKey(), // For initial testing ONLY. REMOVE FOR PRODUCTION!
   ]),
-
-  queries: {
-    listPTEQuestions: a.query()
-      .function(getQuestionsResolver)
-      .returns(a.many(a.ref('PTEQuestion')))
-  }
 });
 
-const getQuestionsResolver = defineFunction({
-  name: 'getQuestionsResolver',
-  runtime: 'nodejs20',
-  handler: 'index.handler',
-  entry: './functions/getQuestionsResolver.ts'
-});
+// Add the query separately using the correct Gen 2 syntax
+schema.query('listPTEQuestions', (q) => 
+  q.resolver(getQuestionsResolver)
+   .returns(a.array(a.ref('PTEQuestion')))
+);
 
 export type Schema = ClientSchema<typeof schema>;
 
