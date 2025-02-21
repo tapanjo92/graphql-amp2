@@ -5,17 +5,22 @@ import {
   defineFunction
 } from '@aws-amplify/backend';
 
-// Define the function using the "entry" property.
+// Define the resolver function using the "entry" property.
 const getQuestionsResolver = defineFunction({
   entry: './functions/getQuestionsResolver.ts'
 });
 
-// Define the data model schema.
+// Define a custom type that wraps a list of PTEQuestion as a JSON string.
+const PTEQuestionsResponse = a.customType({
+  items: a.string() // Will contain JSON.stringify(listOfQuestions)
+});
+
+// Define your data model.
 const schema = a.schema({
   PTEQuestion: a.model({
     questionType: a.string().required(),
     questionText: a.string().required(),
-    options: a.string().array(), // Chain call on a.string() remains unchanged.
+    options: a.string().array(), // model field array is supported
     correctAnswer: a.string(),
     explanation: a.string(),
     difficulty: a.enum(['Easy', 'Medium', 'Hard']),
@@ -23,21 +28,21 @@ const schema = a.schema({
     imageUrl: a.string(),
     passageText: a.string(),
   }).authorization(allow => [
-    // For initial testing ONLY; remove in production.
+    // For testing only – remove for production!
     allow.publicApiKey()
   ]),
 
-  // Define a custom mutation "listPTEQuestions" that returns an array of PTEQuestion.
+  // Define a custom mutation that returns our custom type.
   listPTEQuestions: a.mutation()
     .arguments({})
-    .returns(a.arrayOf(a.ref('PTEQuestion')))
+    .returns(PTEQuestionsResponse)
     .authorization(allow => [
       allow.publicApiKey()
     ])
     .handler(a.handler.function(getQuestionsResolver))
 });
 
-// Export the client schema type and backend data configuration.
+// Export the client schema type and backend configuration.
 export type Schema = ClientSchema<typeof schema>;
 
 export const data = defineData({
