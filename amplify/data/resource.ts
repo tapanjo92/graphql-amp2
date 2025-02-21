@@ -3,9 +3,10 @@ import { a, defineData, defineFunction, type ClientSchema } from '@aws-amplify/b
 // Define the function first before using it in the schema
 const getQuestionsResolver = defineFunction({
   name: 'getQuestionsResolver',
-  runtime: a.FunctionRuntime.NODE_20, // Correct runtime syntax
-  handler: 'index.handler',
-  entry: './functions/getQuestionsResolver.ts'
+  runtime: 'nodejs20',  // Correct runtime syntax
+  code: {
+    path: './functions/getQuestionsResolver.ts'  // Use code.path instead of entry
+  }
 });
 
 const schema = a.schema({
@@ -25,10 +26,12 @@ const schema = a.schema({
   ]),
 });
 
-// Add the query separately using the correct Gen 2 syntax
-schema.query('listPTEQuestions', (q) => 
-  q.resolver(getQuestionsResolver)
-   .returns(a.array(a.ref('PTEQuestion')))
+// Define the custom operation
+schema.mutation('listPTEQuestions', operation => 
+  operation
+    .custom()
+    .function(getQuestionsResolver)
+    .returns(a.list(a.ref('PTEQuestion')))
 );
 
 export type Schema = ClientSchema<typeof schema>;
