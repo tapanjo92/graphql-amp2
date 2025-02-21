@@ -1,8 +1,17 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { API, graphqlOperation } from "aws-amplify";
-import { Card, Heading, Text, Flex, Spinner } from "@aws-amplify/ui-react";
+// Use the modular API package from Amplify
+import { API, graphqlOperation } from "@aws-amplify/api"; 
+// Import only the necessary UI components from Amplify UI React
+import { Card, Heading, Text, Flex } from "@aws-amplify/ui-react";
+
+// A simple custom Spinner component using TailwindCSS
+const Spinner: React.FC = () => (
+  <div className="flex justify-center items-center min-h-screen">
+    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
+  </div>
+);
 
 // Define a type for PTEQuestion (as per our GraphQL schema)
 type PTEQuestion = {
@@ -77,7 +86,8 @@ const MCQSPage: React.FC = () => {
         items = JSON.parse(items);
       }
 
-      setQuestions(items);
+      // Append new items if already loaded
+      setQuestions((prev) => [...prev, ...items]);
       setNextToken(response.data.listPTEQuestions.nextToken);
     } catch (err) {
       console.error("Error fetching questions:", err);
@@ -91,12 +101,8 @@ const MCQSPage: React.FC = () => {
     fetchQuestions();
   }, []);
 
-  if (loading) {
-    return (
-      <Flex justifyContent="center" alignItems="center" className="min-h-screen">
-        <Spinner />
-      </Flex>
-    );
+  if (loading && questions.length === 0) {
+    return <Spinner />;
   }
 
   if (error) {
