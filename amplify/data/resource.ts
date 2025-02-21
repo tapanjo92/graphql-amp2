@@ -10,9 +10,10 @@ const getQuestionsResolver = defineFunction({
   entry: './functions/getQuestionsResolver.ts'
 });
 
-// Define a custom type that wraps a list of PTEQuestion as a JSON string.
+// Define a custom type that wraps the list of PTEQuestions and pagination token.
 const PTEQuestionsResponse = a.customType({
-  items: a.string() // Will contain JSON.stringify(listOfQuestions)
+  items: a.string(),   // Contains JSON.stringify(listOfQuestions)
+  nextToken: a.string() // Pagination token (if any)
 });
 
 // Define your data model.
@@ -34,7 +35,14 @@ const schema = a.schema({
 
   // Define a custom mutation that returns our custom type.
   listPTEQuestions: a.mutation()
-    .arguments({})
+    .arguments({
+      limit: a.int(),
+      nextToken: a.string(),
+      questionType: a.string(),
+      difficulty: a.enum(['Easy', 'Medium', 'Hard']),
+      sortBy: a.string(),
+      sortOrder: a.string(),
+    })
     .returns(PTEQuestionsResponse)
     .authorization(allow => [
       allow.publicApiKey()
