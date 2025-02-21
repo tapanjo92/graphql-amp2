@@ -5,8 +5,7 @@ import {
   defineFunction
 } from '@aws-amplify/backend';
 
-// Define the function using the correct property for the handler code.
-// Use "entry" instead of "code". (Omit "runtime" if it causes type errors.)
+// Define the function using "entry" to point to the handler file.
 const getQuestionsResolver = defineFunction({
   entry: './functions/getQuestionsResolver.ts'
 });
@@ -16,6 +15,7 @@ const schema = a.schema({
   PTEQuestion: a.model({
     questionType: a.string().required(),
     questionText: a.string().required(),
+    // Field definition: a.string().array() is valid on model fields.
     options: a.string().array(),
     correctAnswer: a.string(),
     explanation: a.string(),
@@ -24,24 +24,21 @@ const schema = a.schema({
     imageUrl: a.string(),
     passageText: a.string(),
   }).authorization(allow => [
-    // For initial testing only; remove for production.
+    // For initial testing only. Remove in production.
     allow.publicApiKey()
   ]),
 
-  // Define a custom mutation named "listPTEQuestions".
-  // (You could also use a.query() if it’s a read-only operation.)
+  // Define a custom mutation "listPTEQuestions" that returns an array of PTEQuestion.
   listPTEQuestions: a.mutation()
-    // No arguments are needed here.
     .arguments({})
-    // Use a.array() to specify an array return type.
-    .returns(a.array(a.ref('PTEQuestion')))
+    .returns(a.list(a.ref('PTEQuestion')))
     .authorization(allow => [
       allow.publicApiKey()
     ])
     .handler(a.handler.function(getQuestionsResolver))
 });
 
-// Export the client schema type and data configuration.
+// Export the client schema type and backend data configuration.
 export type Schema = ClientSchema<typeof schema>;
 
 export const data = defineData({
@@ -51,7 +48,7 @@ export const data = defineData({
     apiKeyAuthorizationMode: { expiresInDays: 30 }
   },
   functions: {
-    getQuestionsResolver
-  }
+    getQuestionsResolver,
+  },
 });
 
