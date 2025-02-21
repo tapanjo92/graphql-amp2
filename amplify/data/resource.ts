@@ -17,19 +17,17 @@ const schema = a.schema({
   ])
 });
 
-// Define the function - Correct runtime
+// Update the getQuestionsResolver by setting a runtime string directly.
 const getQuestionsResolver = defineFunction({
   name: 'getQuestionsResolver',
-  runtime: a.func.runtime.NODEJS_20_X, // Correct!
+  runtime: 'nodejs20.x',
   entry: './functions/getQuestionsResolver.ts',
 });
 
-// Attach the resolver - *Correctly* this time!
-schema.override(schema.PTEQuestion, {
-  list: { resolver: getQuestionsResolver }, // Key change!
+// Use the new override syntax via the models property.
+schema.models.PTEQuestion.override({
+  list: { resolver: getQuestionsResolver }
 });
-
-export type Schema = ClientSchema<typeof schema>;
 
 export const data = defineData({
   schema,
