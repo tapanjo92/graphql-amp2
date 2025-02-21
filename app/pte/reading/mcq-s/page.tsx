@@ -1,9 +1,8 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-// Use the modular API package from Amplify
-import { API, graphqlOperation } from "@aws-amplify/api"; 
-// Import only the necessary UI components from Amplify UI React
+// Import the default export API and the helper graphqlOperation from the modular API package
+import API, { graphqlOperation } from "@aws-amplify/api";
 import { Card, Heading, Text, Flex } from "@aws-amplify/ui-react";
 
 // A simple custom Spinner component using TailwindCSS
@@ -99,6 +98,7 @@ const MCQSPage: React.FC = () => {
 
   useEffect(() => {
     fetchQuestions();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   if (loading && questions.length === 0) {
