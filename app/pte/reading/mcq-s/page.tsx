@@ -1,136 +1,97 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-// Import the API category from the modular package
-import { client } from "../../../providers";
-// Import graphqlOperation from its dedicated package
+import { generateClient } from "aws-amplify/data";
+import { type Schema } from "@/amplify/data/resource";
+import { Card, Heading, Text, Flex, Loader, View } from "@aws-amplify/ui-react";
 
-import { Card, Heading, Text, Flex } from "@aws-amplify/ui-react";
+const client = generateClient<Schema>();
 
-// A simple custom Spinner component using TailwindCSS
-const Spinner: React.FC = () => (
-  <div className="flex justify-center items-center min-h-screen">
-    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
-  </div>
-);
-
-// Define a type for PTEQuestion (as per our GraphQL schema)
 type PTEQuestion = {
   id: string;
   questionType: string;
   questionText: string;
-  options?: string[];
-  correctAnswer?: string;
-  explanation?: string;
-  difficulty?: "Easy" | "Medium" | "Hard";
-  audioUrl?: string;
-  imageUrl?: string;
-  passageText?: string;
+  options: string[] | null;
+  correctAnswer: string | null;
+  explanation: string | null;
+  difficulty: 'Easy' | 'Medium' | 'Hard' | null;
+  audioUrl: string | null;
+  imageUrl: string | null;
+  passageText: string | null;
 };
-
-// Define a type for the GraphQL response
-type ListPTEQuestionsResponse = {
-  listPTEQuestions: {
-    items: any; // items may be an array or a JSON string
-    nextToken: string | null;
-  };
-};
-
-// GraphQL mutation for fetching questions
-const listPTEQuestionsMutation = /* GraphQL */ `
-  mutation ListPTEQuestions(
-    $limit: String
-    $nextToken: String
-    $questionType: String
-    $difficulty: String
-    $sortBy: String
-    $sortOrder: String
-  ) {
-    listPTEQuestions(
-      limit: $limit
-      nextToken: $nextToken
-      questionType: $questionType
-      difficulty: $difficulty
-      sortBy: $sortBy
-      sortOrder: $sortOrder
-    ) {
-      items
-      nextToken
-    }
-  }
-`;
 
 const MCQSPage: React.FC = () => {
   const [questions, setQuestions] = useState<PTEQuestion[]>([]);
-  const [nextToken, setNextToken] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Function to fetch questions using the GraphQL API
-  const fetchQuestions = async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      const variables = {
-        limit: "5", // Default limit as string per backend schema
-        nextToken: nextToken,
-        // Additional filtering/sorting variables can be added here
-      };
-
-      const response = (await client.graphql({
-        query: listPTEQuestionsMutation,
-        variables
-      })) as { data: ListPTEQuestionsResponse };
-
-      let items = response.data.listPTEQuestions.items;
-      // If items are returnedd as a JSON string, parse them
-      if (typeof items === "string") {
-        items = JSON.parse(items);
-      }
-
-      // Append new items if already loaded
-      setQuestions((prev) => [...prev, ...items]);
-      setNextToken(response.data.listPTEQuestions.nextToken);
-    } catch (err) {
-      console.error("Error fetching questions:", err);
-      setError("Failed to load questions.");
-    } finally {
-      setLoading(false);
-    }
-  };
-
   useEffect(() => {
+    async function fetchQuestions() {
+      try {
+        const response = await client.models.PTEQuestion.list({
+          filter: {
+            questionType: {
+              eq: "MCQ-S"
+            }
+          },
+          limit: 5
+        });
+
+        const typedQuestions = response.data.map(item => ({
+          id: item.id,
+          questionType: item.questionType,
+          questionText: item.questionText,
+          options: item.options ? item.options.filter((option): option is string => option !== null) : null,
+          correctAnswer: item.correctAnswer ?? null,
+          explanation: item.explanation ?? null,
+          difficulty: item.difficulty ?? null,
+          audioUrl: item.audioUrl ?? null,
+          imageUrl: item.imageUrl ?? null,
+          passageText: item.passageText ?? null,
+        })) as PTEQuestion[];
+
+        setQuestions(typedQuestions);
+      } catch (err) {
+        console.error("Error fetching questions:", err);
+        setError("Failed to load questions.");
+      } finally {
+        setLoading(false);
+      }
+    }
+
     fetchQuestions();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  if (loading && questions.length === 0) {
-    return <Spinner />;
+  if (loading) {
+    return (
+      <View className="flex justify-center items-center min-h-[200px]">
+        <Loader size="large" />
+      </View>
+    );
   }
 
   if (error) {
     return (
-      <Flex justifyContent="center" alignItems="center" className="min-h-screen">
-        <Text color="red">{error}</Text>
-      </Flex>
+      <View className="p-4 bg-red-50 border border-red-200 rounded">
+        <Text className="text-red-600">{error}</Text>
+      </View>
     );
   }
 
   return (
     <div className="p-8 bg-gray-50 min-h-screen">
       <Heading level={2} className="mb-4">
-        Multiple Choice Questions
+        Multiple Choice Questions - Single Answer
       </Heading>
       <Flex direction="column" gap="medium">
         {questions.map((q) => (
           <Card key={q.id} padding="medium" className="mb-4">
             <Heading level={4}>{q.questionText}</Heading>
-            <Text className="text-gray-700">Type: {q.questionType}</Text>
             <Text className="text-gray-600">Difficulty: {q.difficulty}</Text>
             {q.options && q.options.length > 0 && (
-              <ul className="list-disc pl-5">
+              <ul className="list-disc pl-5 mt-4">
                 {q.options.map((option, idx) => (
-                  <li key={idx}>
+                  <li key={idx} className="mb-2">
                     <Text>{option}</Text>
                   </li>
                 ))}
@@ -139,19 +100,8 @@ const MCQSPage: React.FC = () => {
           </Card>
         ))}
       </Flex>
-      {nextToken && (
-        <Flex justifyContent="center" className="mt-8">
-          <button
-            className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
-            onClick={fetchQuestions}
-          >
-            Load More
-          </button>
-        </Flex>
-      )}
     </div>
   );
 };
 
 export default MCQSPage;
-
