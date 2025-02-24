@@ -14,7 +14,7 @@ const readingOptions: ReadingOption[] = [
   {
     title: "Multiple-choice: choose single answer",
     description: "Select one answer from the options.",
-    url: "/reading/mcq-s",
+    url: "/pte/reading/mcq-s",
   },
   {
     title: "Multiple-choice: choose multiple answers",
