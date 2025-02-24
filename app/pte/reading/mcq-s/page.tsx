@@ -1,9 +1,40 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import Amplify from "aws-amplify";
-import { API, graphqlOperation } from "@aws-amplify/api";
+// Import the API category from the modular package
+import { client } from "../../../providers";
+// Import graphqlOperation from its dedicated package
+
 import { Card, Heading, Text, Flex } from "@aws-amplify/ui-react";
+
+// A simple custom Spinner component using TailwindCSS
+const Spinner: React.FC = () => (
+  <div className="flex justify-center items-center min-h-screen">
+    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
+  </div>
+);
+
+// Define a type for PTEQuestion (as per our GraphQL schema)
+type PTEQuestion = {
+  id: string;
+  questionType: string;
+  questionText: string;
+  options?: string[];
+  correctAnswer?: string;
+  explanation?: string;
+  difficulty?: "Easy" | "Medium" | "Hard";
+  audioUrl?: string;
+  imageUrl?: string;
+  passageText?: string;
+};
+
+// Define a type for the GraphQL response
+type ListPTEQuestionsResponse = {
+  listPTEQuestions: {
+    items: any; // items may be an array or a JSON string
+    nextToken: string | null;
+  };
+};
 
 // GraphQL mutation for fetching questions
 const listPTEQuestionsMutation = /* GraphQL */ `
@@ -29,19 +60,6 @@ const listPTEQuestionsMutation = /* GraphQL */ `
   }
 `;
 
-type PTEQuestion = {
-  id: string;
-  questionType: string;
-  questionText: string;
-  options?: string[];
-  correctAnswer?: string;
-  explanation?: string;
-  difficulty?: "Easy" | "Medium" | "Hard";
-  audioUrl?: string;
-  imageUrl?: string;
-  passageText?: string;
-};
-
 const MCQSPage: React.FC = () => {
   const [questions, setQuestions] = useState<PTEQuestion[]>([]);
   const [nextToken, setNextToken] = useState<string | null>(null);
@@ -54,20 +72,24 @@ const MCQSPage: React.FC = () => {
     setError(null);
     try {
       const variables = {
-        limit: "5", // Using string as per backend schema definition
+        limit: "5", // Default limit as string per backend schema
         nextToken: nextToken,
+        // Additional filtering/sorting variables can be added here
       };
 
-      const response = (await API.graphql(
-        graphqlOperation(listPTEQuestionsMutation, variables)
-      )) as { data: any };
+      const response = (await client.graphql({
+        query: listPTEQuestionsMutation,
+        variables
+      })) as { data: ListPTEQuestionsResponse };
 
       let items = response.data.listPTEQuestions.items;
-      // If items are returned as a JSON string, parse them
+      // If items are returnedd as a JSON string, parse them
       if (typeof items === "string") {
         items = JSON.parse(items);
       }
-      setQuestions(items);
+
+      // Append new items if already loaded
+      setQuestions((prev) => [...prev, ...items]);
       setNextToken(response.data.listPTEQuestions.nextToken);
     } catch (err) {
       console.error("Error fetching questions:", err);
@@ -79,15 +101,11 @@ const MCQSPage: React.FC = () => {
 
   useEffect(() => {
     fetchQuestions();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  if (loading) {
-    return (
-      <Flex justifyContent="center" alignItems="center" className="min-h-screen">
-        {/* TailwindCSS-based spinner */}
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
-      </Flex>
-    );
+  if (loading && questions.length === 0) {
+    return <Spinner />;
   }
 
   if (error) {
