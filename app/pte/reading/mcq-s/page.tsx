@@ -2,10 +2,10 @@
 
 import React, { useState, useEffect } from "react";
 import Amplify from "aws-amplify";
-import { API, graphqlOperation } from "@aws-amplify/api-graphql";
+import { API, graphqlOperation } from "@aws-amplify/api";
 import { Card, Heading, Text, Flex } from "@aws-amplify/ui-react";
 
-// GraphQL query for fetching questions
+// GraphQL mutation for fetching questions
 const listPTEQuestionsMutation = /* GraphQL */ `
   mutation ListPTEQuestions(
     $limit: String
@@ -54,9 +54,8 @@ const MCQSPage: React.FC = () => {
     setError(null);
     try {
       const variables = {
-        limit: "5", // using string as per backend schema
+        limit: "5", // Using string as per backend schema definition
         nextToken: nextToken,
-        // Additional filtering/sorting variables can be added here
       };
 
       const response = (await API.graphql(
@@ -68,7 +67,6 @@ const MCQSPage: React.FC = () => {
       if (typeof items === "string") {
         items = JSON.parse(items);
       }
-
       setQuestions(items);
       setNextToken(response.data.listPTEQuestions.nextToken);
     } catch (err) {
@@ -86,7 +84,7 @@ const MCQSPage: React.FC = () => {
   if (loading) {
     return (
       <Flex justifyContent="center" alignItems="center" className="min-h-screen">
-        {/* Simple TailwindCSS spinner */}
+        {/* TailwindCSS-based spinner */}
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
       </Flex>
     );
