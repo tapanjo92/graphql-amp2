@@ -2,8 +2,8 @@
 
 import React, { useState, useEffect } from "react";
 import Amplify from "aws-amplify";
-import { API, graphqlOperation } from "@aws-amplify/api";
-import { Card, Heading, Text, Flex, Spinner } from "@aws-amplify/ui-react";
+import { API, graphqlOperation } from "@aws-amplify/api-graphql";
+import { Card, Heading, Text, Flex } from "@aws-amplify/ui-react";
 
 // GraphQL query for fetching questions
 const listPTEQuestionsMutation = /* GraphQL */ `
@@ -48,6 +48,7 @@ const MCQSPage: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
+  // Function to fetch questions using the GraphQL API
   const fetchQuestions = async () => {
     setLoading(true);
     setError(null);
@@ -55,7 +56,7 @@ const MCQSPage: React.FC = () => {
       const variables = {
         limit: "5", // using string as per backend schema
         nextToken: nextToken,
-        // additional filtering/sorting variables can be added here
+        // Additional filtering/sorting variables can be added here
       };
 
       const response = (await API.graphql(
@@ -85,7 +86,8 @@ const MCQSPage: React.FC = () => {
   if (loading) {
     return (
       <Flex justifyContent="center" alignItems="center" className="min-h-screen">
-        <Spinner />
+        {/* Simple TailwindCSS spinner */}
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
       </Flex>
     );
   }
