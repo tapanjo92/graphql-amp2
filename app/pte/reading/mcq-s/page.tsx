@@ -109,18 +109,20 @@ const MCQSingleAnswerPage: React.FC = () => {
                 <Text className="text-gray-600 mt-2 mb-4">Difficulty: {question.difficulty}</Text>
 
                 {question.options && question.options.length > 0 && (
-                  <RadioGroupField
-                    label="Select the correct answer"
-                    name={`question-${question.id}`}
-                    value={selectedAnswers[question.id] || ''}
-                    onChange={(e) => handleAnswerChange(question.id, e.target.value)}
-                  >
-                    {question.options.map((option, optionIdx) => (
-                      <Radio key={optionIdx} value={option}>
-                        {option}
-                      </Radio>
-                    ))}
-                  </RadioGroupField>
+                  <div>
+                    <Text className="font-medium mb-2">Select the correct answer:</Text>
+                    <RadioGroupField
+                      name={`question-${question.id}`}
+                      value={selectedAnswers[question.id] || ''}
+                      onChange={(e) => handleAnswerChange(question.id, e.target.value)}
+                    >
+                      {question.options.map((option, optionIdx) => (
+                        <Radio key={optionIdx} value={option}>
+                          {option}
+                        </Radio>
+                      ))}
+                    </RadioGroupField>
+                  </div>
                 )}
               </Card>
             ))}
