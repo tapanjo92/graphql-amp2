@@ -28,25 +28,19 @@ export default function Questions() {
   useEffect(() => {
     async function fetchQuestions() {
       try {
-        const response = await client.models.PTEQuestion.list();
-        // Get only 5 random questions
-        const shuffled = response.data.sort(() => 0.5 - Math.random());
+        // Using the Lambda function instead of direct model query
+        const response = await client.mutations.listPTEQuestions({
+          limit: "5"  // Passing as a string as per the schema
+        });
 
-        // Type cast each item to explicitly match the Question interface, handling nulls safely.
-        const selectedQuestions = shuffled.slice(0, 5).map(item => ({
-          id: item.id,
-          questionType: item.questionType,
-          questionText: item.questionText,
-          options: item.options ? item.options.filter((option): option is string => option !== null) : null, // Filter out nulls and assert non-null
-          correctAnswer: item.correctAnswer ?? null,
-          explanation: item.explanation ?? null,
-          difficulty: item.difficulty ?? null,
-          audioUrl: item.audioUrl ?? null,
-          imageUrl: item.imageUrl ?? null,
-          passageText: item.passageText ?? null,
-        })) as Question[];
-
-        setQuestions(selectedQuestions);
+        if (!response.data.items) {
+          throw new Error("No questions data received from Lambda");
+        }
+        
+        // Parse the JSON string containing the questions
+        const parsedItems = JSON.parse(response.data.items) as Question[];
+        
+        setQuestions(parsedItems);
       } catch (err) {
         console.error("Error fetching questions:", err);
         setError("Failed to load questions. Please try again later.");
@@ -123,3 +117,4 @@ export default function Questions() {
     </View>
   );
 }
+
