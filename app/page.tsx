@@ -36,9 +36,10 @@ export default function App(): JSX.Element {
     router.push('/profile');
   };
   
-  const handleKeyDown = (event: React.KeyboardEvent, action: () => void): void => {
+  // Updated to handle potentially undefined callbacks
+  const handleKeyDown = (event: React.KeyboardEvent, action: (() => void) | undefined): void => {
     if (event.key === 'Enter' || event.key === ' ') {
-      action();
+      action && action();
     }
   };
 
@@ -117,6 +118,3 @@ export default function App(): JSX.Element {
     </Authenticator>
   );
 }
-
-
-
