@@ -10,7 +10,7 @@ import Link from 'next/link';
  * Conditionally rendered based on current path
  * @returns React component with header navigation
  */
-const HeaderComponent: React.FC = (): JSX.Element => {
+const HeaderComponent = (): JSX.Element | null => {
   const pathname = usePathname();
   const router = useRouter();
   
