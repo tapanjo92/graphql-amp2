@@ -33,13 +33,13 @@ export default function Questions() {
           limit: "5"  // Passing as a string as per the schema
         });
 
-        if (!response.data.items) {
+        if (!response.data?.items) {
           throw new Error("No questions data received from Lambda");
         }
-        
+
         // Parse the JSON string containing the questions
         const parsedItems = JSON.parse(response.data.items) as Question[];
-        
+
         setQuestions(parsedItems);
       } catch (err) {
         console.error("Error fetching questions:", err);
@@ -117,4 +117,3 @@ export default function Questions() {
     </View>
   );
 }
-
