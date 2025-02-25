@@ -20,17 +20,21 @@ import { useRouter } from 'next/navigation';
 
 const client = generateClient<Schema>();
 
+type Nullable<T> = T | null;
+
 type PTEQuestion = {
   id: string;
   questionType: string;
   questionText: string;
-  options: string[] | null;
-  correctAnswer: string | null;
-  explanation: string | null;
-  difficulty: 'Easy' | 'Medium' | 'Hard' | null;
-  audioUrl: string | null;
-  imageUrl: string | null;
-  passageText: string | null;
+  options: Nullable<string[]>;
+  correctAnswer: Nullable<string>;
+  explanation: Nullable<string>;
+  difficulty: Nullable<'Easy' | 'Medium' | 'Hard'>;
+  audioUrl: Nullable<string>;
+  imageUrl: Nullable<string>;
+  passageText: Nullable<string>;
+  createdAt: string;
+  updatedAt: string;
 };
 
 export default function MCQSingleAnswerPage() {
@@ -54,7 +58,7 @@ export default function MCQSingleAnswerPage() {
           throw new Error("No questions data received");
         }
 
-        setQuestions(response.data);
+        setQuestions(response.data as PTEQuestion[]);
       } catch (err) {
         console.error("Error fetching questions:", err);
         setError("Failed to load questions. Please try again later.");
