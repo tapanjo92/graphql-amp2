@@ -1,3 +1,6 @@
+// amplify/data/resource.ts
+// Make sure your schema includes the listPTEQuestions mutation:
+
 import {
   type ClientSchema,
   a,
@@ -21,7 +24,7 @@ const schema = a.schema({
   PTEQuestion: a.model({
     questionType: a.string().required(),
     questionText: a.string().required(),
-    options: a.string().array(), // model field array is supported
+    options: a.string().array(),
     correctAnswer: a.string(),
     explanation: a.string(),
     difficulty: a.enum(['Easy', 'Medium', 'Hard']),
@@ -29,14 +32,12 @@ const schema = a.schema({
     imageUrl: a.string(),
     passageText: a.string(),
   }).authorization(allow => [
-    // For testing only – remove for production!
     allow.publicApiKey()
   ]),
 
   // Define a custom mutation that returns our custom type.
   listPTEQuestions: a.mutation()
     .arguments({
-      // Using a.string() for limit as a workaround
       limit: a.string(),
       nextToken: a.string(),
       questionType: a.string(),
@@ -64,4 +65,3 @@ export const data = defineData({
     getQuestionsResolver,
   },
 });
-

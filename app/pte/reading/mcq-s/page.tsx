@@ -1,9 +1,12 @@
+// app/pte/reading/mcq-s/page.tsx
 "use client";
 
 import React, { useState, useEffect } from "react";
 import { generateClient } from "aws-amplify/data";
 import { type Schema } from "@/amplify/data/resource";
-import { Card, Heading, Text, Flex, Loader, View } from "@aws-amplify/ui-react";
+import { Card, Heading, Text, Flex, Loader, View, Button, Radio, RadioGroupField } from '@aws-amplify/ui-react';
+import { Authenticator } from '@aws-amplify/ui-react';
+import { useRouter } from 'next/navigation';
 
 const client = generateClient<Schema>();
 
@@ -20,40 +23,33 @@ type PTEQuestion = {
   passageText: string | null;
 };
 
-const MCQSPage: React.FC = () => {
+const MCQSingleAnswerPage: React.FC = () => {
   const [questions, setQuestions] = useState<PTEQuestion[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+  const [selectedAnswers, setSelectedAnswers] = useState<Record<string, string>>({});
+  const router = useRouter();
 
   useEffect(() => {
     async function fetchQuestions() {
       try {
-        const response = await client.models.PTEQuestion.list({
-          filter: {
-            questionType: {
-              eq: "MCQ-S"
-            }
-          },
-          limit: 5
+        // Using the Lambda function instead of direct model query
+        const response = await client.mutations.listPTEQuestions({
+          limit: "5",
+          questionType: "Reading"
         });
 
-        const typedQuestions = response.data.map(item => ({
-          id: item.id,
-          questionType: item.questionType,
-          questionText: item.questionText,
-          options: item.options ? item.options.filter((option): option is string => option !== null) : null,
-          correctAnswer: item.correctAnswer ?? null,
-          explanation: item.explanation ?? null,
-          difficulty: item.difficulty ?? null,
-          audioUrl: item.audioUrl ?? null,
-          imageUrl: item.imageUrl ?? null,
-          passageText: item.passageText ?? null,
-        })) as PTEQuestion[];
-
-        setQuestions(typedQuestions);
+        if (!response.data.items) {
+          throw new Error("No questions data received from Lambda");
+        }
+        
+        // Parse the JSON string containing the questions
+        const parsedItems = JSON.parse(response.data.items) as PTEQuestion[];
+        
+        setQuestions(parsedItems);
       } catch (err) {
         console.error("Error fetching questions:", err);
-        setError("Failed to load questions.");
+        setError("Failed to load questions. Please try again later.");
       } finally {
         setLoading(false);
       }
@@ -61,6 +57,17 @@ const MCQSPage: React.FC = () => {
 
     fetchQuestions();
   }, []);
+
+  const handleAnswerChange = (questionId: string, value: string): void => {
+    setSelectedAnswers(prev => ({
+      ...prev,
+      [questionId]: value
+    }));
+  };
+
+  const handleGoBack = (): void => {
+    router.push('/pte/reading');
+  };
 
   if (loading) {
     return (
@@ -74,34 +81,73 @@ const MCQSPage: React.FC = () => {
     return (
       <View className="p-4 bg-red-50 border border-red-200 rounded">
         <Text className="text-red-600">{error}</Text>
+        <Button 
+          onClick={handleGoBack} 
+          variation="primary" 
+          className="mt-4"
+          aria-label="Return to reading page"
+          tabIndex={0}
+        >
+          Return to Reading
+        </Button>
       </View>
     );
   }
 
   return (
-    <div className="p-8 bg-gray-50 min-h-screen">
-      <Heading level={2} className="mb-4">
-        Multiple Choice Questions - Single Answer
-      </Heading>
-      <Flex direction="column" gap="medium">
-        {questions.map((q) => (
-          <Card key={q.id} padding="medium" className="mb-4">
-            <Heading level={4}>{q.questionText}</Heading>
-            <Text className="text-gray-600">Difficulty: {q.difficulty}</Text>
-            {q.options && q.options.length > 0 && (
-              <ul className="list-disc pl-5 mt-4">
-                {q.options.map((option, idx) => (
-                  <li key={idx} className="mb-2">
-                    <Text>{option}</Text>
-                  </li>
-                ))}
-              </ul>
-            )}
-          </Card>
-        ))}
-      </Flex>
-    </div>
+    <Authenticator>
+      {() => (
+        <div className="p-8 bg-gray-50 min-h-screen">
+          <Heading level={2} className="mb-4">
+            Multiple Choice Questions - Single Answer
+          </Heading>
+          
+          <Flex direction="column" gap="medium">
+            {questions.map((question, index) => (
+              <Card key={question.id} variation="outlined" className="mb-4">
+                <Heading level={4}>{question.questionText}</Heading>
+                <Text className="text-gray-600 mt-2 mb-4">Difficulty: {question.difficulty}</Text>
+                
+                {question.options && question.options.length > 0 && (
+                  <RadioGroupField
+                    label="Select the correct answer"
+                    name={`question-${question.id}`}
+                    value={selectedAnswers[question.id] || ''}
+                    onChange={(e) => handleAnswerChange(question.id, e.target.value)}
+                  >
+                    {question.options.map((option, optionIdx) => (
+                      <Radio key={optionIdx} value={option}>
+                        {option}
+                      </Radio>
+                    ))}
+                  </RadioGroupField>
+                )}
+              </Card>
+            ))}
+            
+            <Flex justifyContent="space-between" marginTop="large">
+              <Button
+                onClick={handleGoBack}
+                variation="link"
+                aria-label="Return to reading page"
+                tabIndex={0}
+              >
+                Back to Reading
+              </Button>
+              
+              <Button
+                variation="primary"
+                aria-label="Submit answers"
+                tabIndex={0}
+              >
+                Submit Answers
+              </Button>
+            </Flex>
+          </Flex>
+        </div>
+      )}
+    </Authenticator>
   );
 };
 
-export default MCQSPage;
+export default MCQSingleAnswerPage;
