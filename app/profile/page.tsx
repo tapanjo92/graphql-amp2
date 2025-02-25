@@ -94,7 +94,7 @@ export default function ProfilePage(): JSX.Element {
   return (
     <View as="main" className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 py-8 px-4 sm:px-6 lg:px-8">
       <View className="max-w-4xl mx-auto space-y-6">
-        <Card shadow="small">
+        <Card variation="outlined">
           <Heading level={2} className="text-2xl font-semibold mb-4">Profile</Heading>
           <Flex direction="column" gap="medium">
             <Flex alignItems="center">
@@ -108,7 +108,7 @@ export default function ProfilePage(): JSX.Element {
           </Flex>
         </Card>
         
-        <Card variation="outlined" shadow="small">
+        <Card variation="outlined">
           <Heading level={3} className="text-xl font-semibold mb-2">Professional Information</Heading>
           <Text className="mb-4">Add your professional headline and location.</Text>
           <Flex gap="medium" marginTop="large">
