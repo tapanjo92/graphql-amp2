@@ -39,13 +39,13 @@ const MCQSingleAnswerPage: React.FC = () => {
           questionType: "Reading"
         });
 
-        if (!response.data.items) {
+        if (!response.data?.items) {
           throw new Error("No questions data received from Lambda");
         }
-        
+
         // Parse the JSON string containing the questions
         const parsedItems = JSON.parse(response.data.items) as PTEQuestion[];
-        
+
         setQuestions(parsedItems);
       } catch (err) {
         console.error("Error fetching questions:", err);
@@ -81,9 +81,9 @@ const MCQSingleAnswerPage: React.FC = () => {
     return (
       <View className="p-4 bg-red-50 border border-red-200 rounded">
         <Text className="text-red-600">{error}</Text>
-        <Button 
-          onClick={handleGoBack} 
-          variation="primary" 
+        <Button
+          onClick={handleGoBack}
+          variation="primary"
           className="mt-4"
           aria-label="Return to reading page"
           tabIndex={0}
@@ -101,13 +101,13 @@ const MCQSingleAnswerPage: React.FC = () => {
           <Heading level={2} className="mb-4">
             Multiple Choice Questions - Single Answer
           </Heading>
-          
+
           <Flex direction="column" gap="medium">
             {questions.map((question, index) => (
               <Card key={question.id} variation="outlined" className="mb-4">
                 <Heading level={4}>{question.questionText}</Heading>
                 <Text className="text-gray-600 mt-2 mb-4">Difficulty: {question.difficulty}</Text>
-                
+
                 {question.options && question.options.length > 0 && (
                   <RadioGroupField
                     label="Select the correct answer"
@@ -124,7 +124,7 @@ const MCQSingleAnswerPage: React.FC = () => {
                 )}
               </Card>
             ))}
-            
+
             <Flex justifyContent="space-between" marginTop="large">
               <Button
                 onClick={handleGoBack}
@@ -134,7 +134,7 @@ const MCQSingleAnswerPage: React.FC = () => {
               >
                 Back to Reading
               </Button>
-              
+
               <Button
                 variation="primary"
                 aria-label="Submit answers"
