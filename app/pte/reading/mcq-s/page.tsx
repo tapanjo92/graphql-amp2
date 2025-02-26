@@ -1,187 +1,143 @@
-// app/pte/reading/mcq-s/page.tsx
-"use client";
+'use client';
 
-import React, { useState, useEffect } from "react";
-import { generateClient } from "aws-amplify/data";
-import { type Schema } from "@/amplify/data/resource";
-import { 
-  Card, 
-  Heading, 
-  Text, 
-  Flex, 
-  Loader, 
-  View, 
-  Button, 
-  Radio, 
-  RadioGroupField,
-  Authenticator 
-} from '@aws-amplify/ui-react';
-import { useRouter } from 'next/navigation';
+import { useEffect, useState } from 'react';
+import { fetchAuthSession, getCurrentUser } from 'aws-amplify/auth';
+import { generateClient } from 'aws-amplify/api';
+import { Card, Flex, Heading, Text, View, Button, Loader } from '@aws-amplify/ui-react';
+import '@aws-amplify/ui-react/styles.css';
 
-const client = generateClient<Schema>();
-
-type Nullable<T> = T | null;
-
-type PTEQuestion = {
+// Define MCQ type
+type MCQ = {
   id: string;
-  questionType: string;
-  questionText: string;
-  options: Nullable<string[]>;
-  correctAnswer: Nullable<string>;
-  explanation: Nullable<string>;
-  difficulty: Nullable<'Easy' | 'Medium' | 'Hard'>;
-  audioUrl: Nullable<string>;
-  imageUrl: Nullable<string>;
-  passageText: Nullable<string>;
-  createdAt: string;
-  updatedAt: string;
+  question: string;
+  options: string[];
+  correctAnswer: string;
+  explanation?: string;
 };
 
-export default function MCQSingleAnswerPage() {
-  const [questions, setQuestions] = useState<PTEQuestion[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);
+// Generate the Amplify Gen2 API client
+const client = generateClient();
+
+// GraphQL query for fetching MCQs
+const listReadingMCQsQuery = `
+  query ListReadingMCQs {
+    listReadingMCQs {
+      items {
+        id
+        question
+        options
+        correctAnswer
+        explanation
+      }
+    }
+  }
+`;
+
+export default function MCQPage() {
+  const [mcqs, setMcqs] = useState<MCQ[]>([]);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [selectedAnswers, setSelectedAnswers] = useState<Record<string, string>>({});
-  const router = useRouter();
-
+  
   useEffect(() => {
-    async function fetchQuestions() {
+    async function fetchMCQs() {
       try {
-        const response = await client.models.PTEQuestion.list({
-          filter: {
-            questionType: { eq: "Reading" }
-          },
-          limit: 5
-        });
-
-        if (!response.data) {
-          throw new Error("No questions data received");
+        // Ensure the user is authenticated
+        const authSession = await fetchAuthSession();
+        
+        if (!authSession.tokens) {
+          setError('Authentication required');
+          setLoading(false);
+          return;
         }
-
-        setQuestions(response.data as PTEQuestion[]);
-      } catch (err) {
-        console.error("Error fetching questions:", err);
-        setError("Failed to load questions. Please try again later.");
+        
+        // Fetch MCQs using the Amplify Gen2 client
+        const response = await client.graphql({
+          query: listReadingMCQsQuery,
+          authMode: 'userPool'
+        });
+        
+        if (response.data?.listReadingMCQs?.items) {
+          setMcqs(response.data.listReadingMCQs.items);
+        } else {
+          console.log('No MCQs found or empty response:', response);
+          // Empty array is valid, just might be no data yet
+        }
+      } catch (err: any) {
+        console.error('Error fetching MCQs:', err);
+        setError(err.message || 'Failed to load MCQs');
       } finally {
         setLoading(false);
       }
     }
-
-    fetchQuestions();
+    
+    fetchMCQs();
   }, []);
-
-  const handleAnswerChange = (questionId: string, value: string) => {
-    setSelectedAnswers(prev => ({
-      ...prev,
-      [questionId]: value
-    }));
-  };
-
-  const handleSubmit = async () => {
-    // Implement your submit logic here
-    console.log('Submitted answers:', selectedAnswers);
-  };
-
-  const handleGoBack = () => {
-    router.push('/pte/reading');
-  };
-
+  
+  // Handle loading state
   if (loading) {
     return (
-      <View padding="medium">
-        <Flex justifyContent="center" alignItems="center" height="100vh">
-          <Loader size="large" />
-        </Flex>
-      </View>
+      <Flex justifyContent="center" alignItems="center" height="50vh">
+        <Loader size="large" variation="linear" />
+      </Flex>
     );
   }
-
+  
+  // Handle error state
   if (error) {
     return (
       <View padding="medium">
         <Card variation="elevated">
-          <Text variation="error">{error}</Text>
-          <Button
-            onClick={handleGoBack}
-            variation="primary"
-            marginTop="medium"
+          <Heading level={3} color="red">Error Loading MCQs</Heading>
+          <Text>{error}</Text>
+          <Button 
+            onClick={() => window.location.reload()}
+            className="mt-4"
           >
-            Return to Reading
+            Retry
           </Button>
         </Card>
       </View>
     );
   }
-
+  
+  // Handle empty state
+  if (mcqs.length === 0) {
+    return (
+      <View padding="medium">
+        <Card>
+          <Heading level={3}>No MCQs Available</Heading>
+          <Text>There are currently no multiple choice questions available for this section.</Text>
+        </Card>
+      </View>
+    );
+  }
+  
+  // Render MCQs
   return (
-    <Authenticator>
-      {({ signOut }) => (
-        <View padding="medium" backgroundColor="background.secondary">
-          <Card variation="elevated">
-            <Heading level={2} marginBottom="medium">
-              Multiple Choice Questions - Single Answer
-            </Heading>
-
-            <Flex direction="column" gap="medium">
-              {questions.map((question) => (
-                <Card 
-                  key={question.id} 
-                  variation="outlined"
-                  padding="medium"
+    <View as="main" padding="medium">
+      <Heading level={2} className="mb-6">Reading: Multiple Choice Questions</Heading>
+      
+      <Flex direction="column" gap="medium">
+        {mcqs.map((mcq) => (
+          <Card key={mcq.id} variation="elevated" className="p-4">
+            <Heading level={5} className="mb-3">{mcq.question}</Heading>
+            
+            <Flex direction="column" gap="small">
+              {mcq.options.map((option, index) => (
+                <Button
+                  key={index}
+                  variation="outline"
+                  className="text-left justify-start p-3 hover:bg-gray-50"
+                  tabIndex={0}
+                  aria-label={`Option ${index + 1}: ${option}`}
                 >
-                  <Heading level={4} marginBottom="small">
-                    {question.questionText}
-                  </Heading>
-                  
-                  <Text variation="secondary" marginBottom="medium">
-                    Difficulty: {question.difficulty}
-                  </Text>
-
-                  {question.options && question.options.length > 0 && (
-                    <RadioGroupField
-                      name={`question-${question.id}`}
-                      legend="Select the correct answer:"
-                      value={selectedAnswers[question.id] || ''}
-                      onChange={(e) => handleAnswerChange(question.id, e.target.value)}
-                    >
-                      {question.options.map((option, index) => (
-                        <Radio 
-                          key={`${question.id}-option-${index}`}
-                          value={option}
-                        >
-                          {option}
-                        </Radio>
-                      ))}
-                    </RadioGroupField>
-                  )}
-                </Card>
+                  <Text>{option}</Text>
+                </Button>
               ))}
-
-              <Flex 
-                direction="row" 
-                justifyContent="space-between"
-                marginTop="large"
-              >
-                <Button
-                  onClick={handleGoBack}
-                  variation="link"
-                >
-                  Back to Reading
-                </Button>
-
-                <Button
-                  onClick={handleSubmit}
-                  variation="primary"
-                  isDisabled={Object.keys(selectedAnswers).length !== questions.length}
-                >
-                  Submit Answers
-                </Button>
-              </Flex>
             </Flex>
           </Card>
-        </View>
-      )}
-    </Authenticator>
+        ))}
+      </Flex>
+    </View>
   );
 }
-
