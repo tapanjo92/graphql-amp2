@@ -1,143 +1,231 @@
-'use client';
+"use client";
 
-import { useEffect, useState } from 'react';
-import { fetchAuthSession, getCurrentUser } from 'aws-amplify/auth';
-import { generateClient } from 'aws-amplify/api';
-import { Card, Flex, Heading, Text, View, Button, Loader } from '@aws-amplify/ui-react';
-import '@aws-amplify/ui-react/styles.css';
+import { useState, useEffect } from "react";
+import { generateClient } from "aws-amplify/data";
+import { type Schema } from "@/amplify/data/resource";
+import { 
+  View, 
+  Heading, 
+  Text, 
+  Loader, 
+  RadioGroupField, 
+  Radio, 
+  Button,
+  Alert
+} from "@aws-amplify/ui-react";
 
-// Define MCQ type
-type MCQ = {
+const client = generateClient<Schema>();
+
+interface Question {
   id: string;
-  question: string;
-  options: string[];
-  correctAnswer: string;
-  explanation?: string;
-};
+  questionType: string;
+  questionText: string;
+  options: string[] | null;
+  correctAnswer: string | null;
+  explanation: string | null;
+  difficulty: 'Easy' | 'Medium' | 'Hard' | null;
+  audioUrl: string | null;
+  imageUrl: string | null;
+  passageText: string | null;
+}
 
-// Generate the Amplify Gen2 API client
-const client = generateClient();
-
-// GraphQL query for fetching MCQs
-const listReadingMCQsQuery = `
-  query ListReadingMCQs {
-    listReadingMCQs {
-      items {
-        id
-        question
-        options
-        correctAnswer
-        explanation
-      }
-    }
-  }
-`;
-
-export default function MCQPage() {
-  const [mcqs, setMcqs] = useState<MCQ[]>([]);
+export default function MCQSingleAnswerPage() {
+  const [questions, setQuestions] = useState<Question[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  
+  const [currentQuestion, setCurrentQuestion] = useState<number>(0);
+  const [selectedAnswer, setSelectedAnswer] = useState<string>("");
+  const [showResult, setShowResult] = useState<boolean>(false);
+  const [isCorrect, setIsCorrect] = useState<boolean>(false);
+
   useEffect(() => {
-    async function fetchMCQs() {
+    async function fetchQuestions() {
       try {
-        // Ensure the user is authenticated
-        const authSession = await fetchAuthSession();
-        
-        if (!authSession.tokens) {
-          setError('Authentication required');
-          setLoading(false);
-          return;
-        }
-        
-        // Fetch MCQs using the Amplify Gen2 client
-        const response = await client.graphql({
-          query: listReadingMCQsQuery,
-          authMode: 'userPool'
+        const response = await client.mutations.listPTEQuestions({
+          limit: "5",
+          questionType: "MCQ-S"  // Specifying the question type for MCQ Single answer
         });
-        
-        if (response.data?.listReadingMCQs?.items) {
-          setMcqs(response.data.listReadingMCQs.items);
-        } else {
-          console.log('No MCQs found or empty response:', response);
-          // Empty array is valid, just might be no data yet
+
+        if (!response.data?.items) {
+          throw new Error("No questions data received from Lambda");
         }
-      } catch (err: any) {
-        console.error('Error fetching MCQs:', err);
-        setError(err.message || 'Failed to load MCQs');
+
+        // Parse the JSON string containing the questions
+        const parsedItems = JSON.parse(response.data.items) as Question[];
+        
+        // Filter for MCQ-S type questions if the Lambda didn't already filter them
+        const mcqsQuestions = parsedItems.filter(q => q.questionType === "MCQ-S");
+        
+        if (mcqsQuestions.length === 0) {
+          throw new Error("No MCQ-S questions available");
+        }
+        
+        setQuestions(mcqsQuestions);
+      } catch (err) {
+        console.error("Error fetching MCQ-S questions:", err);
+        setError("Failed to load questions. Please try again later.");
       } finally {
         setLoading(false);
       }
     }
-    
-    fetchMCQs();
+
+    fetchQuestions();
   }, []);
-  
-  // Handle loading state
+
+  const handleAnswerChange = (value: string) => {
+    setSelectedAnswer(value);
+  };
+
+  const handleSubmitAnswer = () => {
+    if (!selectedAnswer) return;
+    
+    const currentQ = questions[currentQuestion];
+    const isAnswerCorrect = selectedAnswer === currentQ.correctAnswer;
+    
+    setIsCorrect(isAnswerCorrect);
+    setShowResult(true);
+  };
+
+  const handleNextQuestion = () => {
+    if (currentQuestion < questions.length - 1) {
+      setCurrentQuestion(currentQuestion + 1);
+      setSelectedAnswer("");
+      setShowResult(false);
+    }
+  };
+
   if (loading) {
     return (
-      <Flex justifyContent="center" alignItems="center" height="50vh">
-        <Loader size="large" variation="linear" />
-      </Flex>
+      <View className="flex justify-center items-center min-h-[300px]">
+        <Loader size="large" />
+      </View>
     );
   }
-  
-  // Handle error state
+
   if (error) {
     return (
-      <View padding="medium">
-        <Card variation="elevated">
-          <Heading level={3} color="red">Error Loading MCQs</Heading>
-          <Text>{error}</Text>
-          <Button 
-            onClick={() => window.location.reload()}
-            className="mt-4"
-          >
-            Retry
-          </Button>
-        </Card>
+      <View className="p-6 max-w-4xl mx-auto">
+        <Alert variation="error" heading="Error">
+          {error}
+        </Alert>
       </View>
     );
   }
-  
-  // Handle empty state
-  if (mcqs.length === 0) {
+
+  if (questions.length === 0) {
     return (
-      <View padding="medium">
-        <Card>
-          <Heading level={3}>No MCQs Available</Heading>
-          <Text>There are currently no multiple choice questions available for this section.</Text>
-        </Card>
+      <View className="p-6 max-w-4xl mx-auto">
+        <Alert variation="warning" heading="No Questions Available">
+          There are currently no MCQ-S questions available. Please try again later.
+        </Alert>
       </View>
     );
   }
-  
-  // Render MCQs
+
+  const currentQ = questions[currentQuestion];
+
   return (
-    <View as="main" padding="medium">
-      <Heading level={2} className="mb-6">Reading: Multiple Choice Questions</Heading>
-      
-      <Flex direction="column" gap="medium">
-        {mcqs.map((mcq) => (
-          <Card key={mcq.id} variation="elevated" className="p-4">
-            <Heading level={5} className="mb-3">{mcq.question}</Heading>
+    <View className="p-6 max-w-4xl mx-auto">
+      <Heading level={2} className="text-2xl font-bold mb-6">
+        Multiple Choice: Choose Single Answer
+      </Heading>
+
+      <View className="bg-white rounded-lg shadow-md p-6 mb-6">
+        {/* Progress indicator */}
+        <Text className="text-gray-600 mb-4">
+          Question {currentQuestion + 1} of {questions.length}
+        </Text>
+
+        {/* Question text */}
+        <View className="mb-8">
+          {currentQ.passageText && (
+            <View className="bg-gray-50 p-4 rounded-lg mb-6 border border-gray-200">
+              <Text className="text-gray-800">{currentQ.passageText}</Text>
+            </View>
+          )}
+          
+          <Text className="text-lg font-medium mb-2">
+            {currentQ.questionText}
+          </Text>
+
+          {currentQ.imageUrl && (
+            <img
+              src={currentQ.imageUrl}
+              alt="Question image"
+              className="max-w-full h-auto rounded my-4"
+              loading="lazy"
+            />
+          )}
+        </View>
+
+        {/* Answer options */}
+        <RadioGroupField
+          label="Select the correct answer:"
+          name="answer"
+          value={selectedAnswer}
+          onChange={(e) => handleAnswerChange(e.target.value)}
+          className="mb-6"
+        >
+          {currentQ.options?.map((option, idx) => (
+            <Radio
+              key={idx}
+              value={option}
+              className={`p-3 border rounded-md mb-2 block ${
+                showResult && option === currentQ.correctAnswer 
+                  ? "border-green-500 bg-green-50" 
+                  : showResult && option === selectedAnswer && option !== currentQ.correctAnswer 
+                  ? "border-red-500 bg-red-50" 
+                  : "border-gray-300"
+              }`}
+              disabled={showResult}
+            >
+              {option}
+            </Radio>
+          ))}
+        </RadioGroupField>
+
+        {/* Results */}
+        {showResult && (
+          <View className={`p-4 rounded-lg mb-6 ${isCorrect ? "bg-green-50 border border-green-200" : "bg-red-50 border border-red-200"}`}>
+            <Heading level={5} className={`text-lg font-semibold ${isCorrect ? "text-green-700" : "text-red-700"}`}>
+              {isCorrect ? "Correct!" : "Incorrect"}
+            </Heading>
             
-            <Flex direction="column" gap="small">
-              {mcq.options.map((option, index) => (
-                <Button
-                  key={index}
-                  variation="outline"
-                  className="text-left justify-start p-3 hover:bg-gray-50"
-                  tabIndex={0}
-                  aria-label={`Option ${index + 1}: ${option}`}
-                >
-                  <Text>{option}</Text>
-                </Button>
-              ))}
-            </Flex>
-          </Card>
-        ))}
-      </Flex>
+            {!isCorrect && (
+              <Text className="mt-2 text-gray-700">
+                The correct answer is: <span className="font-medium">{currentQ.correctAnswer}</span>
+              </Text>
+            )}
+            
+            {currentQ.explanation && (
+              <Text className="mt-2 text-gray-700">
+                <span className="font-medium">Explanation:</span> {currentQ.explanation}
+              </Text>
+            )}
+          </View>
+        )}
+
+        {/* Action buttons */}
+        <View className="flex justify-between">
+          {!showResult ? (
+            <Button
+              variation="primary"
+              onClick={handleSubmitAnswer}
+              disabled={!selectedAnswer}
+            >
+              Submit Answer
+            </Button>
+          ) : (
+            <Button
+              variation="primary"
+              onClick={handleNextQuestion}
+              disabled={currentQuestion >= questions.length - 1}
+            >
+              Next Question
+            </Button>
+          )}
+        </View>
+      </View>
     </View>
   );
 }
