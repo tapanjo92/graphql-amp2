@@ -160,7 +160,7 @@ export default function MCQSingleAnswerPage() {
 
         {/* Answer options */}
         <RadioGroupField
-          label="Select the correct answer:"
+          legendText="Select the correct answer:"
           name="answer"
           value={selectedAnswer}
           onChange={(e) => handleAnswerChange(e.target.value)}
